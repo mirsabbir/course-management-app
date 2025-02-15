@@ -1,0 +1,62 @@
+# Node.js / React
+#################
+# Dependency directories
+node_modules/
+
+# Build output
+build/
+dist/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variable files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Next.js specific
+.next/
+
+# VSCode settings
+.vscode/
+
+# MacOS Finder
+.DS_Store
+
+# Windows Installer files
+Thumbs.db
+
+# Log files
+*.log
+
+# React/Frontend testing
+coverage/
+
+# React-specific test file pattern
+*.test.js
+*.test.ts
+*.test.jsx
+*.test.tsx
+
+# .NET / C# / ASP.NET Core
+############################
+
+# Build output
+bin/
+obj/
+
+# User-specific files
+.vs/
+.idea/
+.vscode/
+
+# ASP.NET
+appsettings.Development.json
+
+# Windows Installer files
+Thumbs.db
