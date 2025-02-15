@@ -1,0 +1,44 @@
+.homepage {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .navbar-actions .btn {
+    padding: 8px 16px;
+    background-color: white;
+    color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .banner {
+    background-color: #f8f9fa;
+    padding: 40px 20px;
+    margin-bottom: 20px;
+  }
+  
+  .banner h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+  
+  .banner p {
+    font-size: 1.2rem;
+    color: #666;
+  }
