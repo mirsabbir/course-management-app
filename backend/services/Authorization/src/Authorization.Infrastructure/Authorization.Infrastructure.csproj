@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.1.0" />
+	  <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.1.0" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Authorization.Application\Authorization.Application.csproj" />
+    <ProjectReference Include="..\Authorization.Domain\Authorization.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
