@@ -4,6 +4,8 @@ namespace Authorization.Domain
 {
     public class User : IdentityUser
     {
-        // Add additional properties here if needed
+        // Additional properties for user profile
+        public string FullName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
     }
 }

@@ -33,7 +33,7 @@ public static class Config
         {
             ClientId = "mvc",
             ClientName = "MVC Client",
-            AllowedGrantTypes = GrantTypes.Code,
+            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
             RequirePkce = true,
             RequireClientSecret = true,
             ClientSecrets =

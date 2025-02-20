@@ -1,0 +1,41 @@
+﻿@page
+@model Authorization.API.Pages.Account.AcceptInvitation.IndexModel
+@{
+    ViewData["Title"] = "Accept Invitation";
+}
+<div class="container d-flex justify-content-center align-items-center min-vh-50">
+    <div class="invite-page card shadow-lg p-4" style="max-width: 600px; width: 100%;">
+
+        <div class="text-center mb-4">
+            <h1 class="fw-bold">Accept Your Invitation</h1>
+            <p class="text-muted">Set your password and activate your account.</p>
+        </div>
+
+        <partial name="_ValidationSummary" />
+
+        <form method="post">
+            <input type="hidden" asp-for="Input.Token" />
+
+            <!-- Email (Read-only) -->
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email Address</label>
+                <input class="form-control" asp-for="Input.Email" readonly>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">New Password</label>
+                <input type="password" class="form-control" asp-for="Input.Password" placeholder="Enter a strong password" autocomplete="off" required>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" asp-for="Input.ConfirmPassword" placeholder="Re-enter your password" autocomplete="off" required>
+            </div>
+
+            <button class="btn btn-primary w-100 mb-2" type="submit">Activate Account</button>
+            <a class="btn btn-outline-secondary w-100" asp-page="/Account/Login">Cancel</a>
+        </form>
+    </div>
+</div>

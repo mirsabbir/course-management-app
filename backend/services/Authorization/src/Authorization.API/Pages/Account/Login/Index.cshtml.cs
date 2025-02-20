@@ -1,6 +1,7 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
+using Authorization.Domain;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
@@ -9,6 +10,7 @@ using Duende.IdentityServer.Stores;
 using Duende.IdentityServer.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -19,6 +21,7 @@ namespace Authorization.API.Pages.Login;
 public class Index : PageModel
 {
     private readonly TestUserStore _users;
+    private readonly UserManager<User> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IEventService _events;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -34,11 +37,12 @@ public class Index : PageModel
         IAuthenticationSchemeProvider schemeProvider,
         IIdentityProviderStore identityProviderStore,
         IEventService events,
-        TestUserStore? users = null)
+        UserManager<User> userManager)
     {
         // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new InvalidOperationException("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
-            
+        //_users = users ?? throw new InvalidOperationException("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
+
+        _userManager = userManager;
         _interaction = interaction;
         _schemeProvider = schemeProvider;
         _identityProviderStore = identityProviderStore;
@@ -95,11 +99,10 @@ public class Index : PageModel
 
         if (ModelState.IsValid)
         {
-            // validate username/password against in-memory store
-            if (_users.ValidateCredentials(Input.Username, Input.Password))
+            var user = await _userManager.FindByNameAsync(Input.Username);
+            if (await _userManager.CheckPasswordAsync(user, Input.Password))
             {
-                var user = _users.FindByUsername(Input.Username);
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Email, user.UserName, clientId: context?.Client.ClientId));
                 Telemetry.Metrics.UserLogin(context?.Client.ClientId, IdentityServerConstants.LocalIdentityProvider);
 
                 // only set explicit expiration here if user chooses "remember me". 
@@ -112,9 +115,9 @@ public class Index : PageModel
                 };
 
                 // issue authentication cookie with subject ID and username
-                var isuser = new IdentityServerUser(user.SubjectId)
+                var isuser = new IdentityServerUser(user.Email)
                 {
-                    DisplayName = user.Username
+                    DisplayName = user.UserName
                 };
 
                 await HttpContext.SignInAsync(isuser, props);
