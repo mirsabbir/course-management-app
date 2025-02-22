@@ -1,6 +1,8 @@
 ﻿using Authorization.Application.DTOs;
 using Authorization.Application.Interfaces;
 using Authorization.Domain;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +16,7 @@ namespace Authorization.API.Controllers
     {
         private readonly IUserService _userService = userService;
 
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [AuthorizeRolesAndScopes(["Staff"], [])]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO request)

@@ -31,6 +31,7 @@ namespace Authorization.Infrastructure.Services
                 {
                     context.IssuedClaims.Add(new Claim(JwtClaimTypes.Role, role));
                 }
+                context.IssuedClaims.Add(new Claim("fullName", user.FullName));
             }
         }
 

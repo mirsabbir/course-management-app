@@ -33,14 +33,15 @@ public static class Config
         {
             ClientId = "mvc",
             ClientName = "MVC Client",
-            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-            RequirePkce = true,
-            RequireClientSecret = true,
+            AllowedGrantTypes = GrantTypes.Code,
+            RequirePkce = false,
+            RequireClientSecret = false,
+            
             ClientSecrets =
             {
                 new Secret("mvc_secret".Sha256())
             },
-            RedirectUris = { "https://localhost:5002/signin-oidc" },
+            RedirectUris = { "http://localhost:3000/callback" },
             PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
             AllowedScopes = { "openid", "profile", "api1" },
             AllowOfflineAccess = true

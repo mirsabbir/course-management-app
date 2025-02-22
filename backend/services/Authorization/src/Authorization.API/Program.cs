@@ -4,7 +4,9 @@ using Authorization.Domain;
 using Authorization.Infrastructure;
 using Authorization.Infrastructure.Repositories;
 using Authorization.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -55,8 +57,14 @@ builder.Services.AddOpenApi();
 // Configure JWT authentication
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "oidc";
+    
+    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
 })
 .AddJwtBearer(options =>
 {
@@ -94,12 +102,39 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+// CORS
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  // Allow all origins
+              .AllowAnyHeader()  // Allow all headers
+              .AllowAnyMethod(); // Allow all HTTP methods
+    });
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensures the cookie is always secure
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AllowAll"); // Apply the CORS policy
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUi(options =>
+    {
+        options.DocumentPath = "openapi/v1.json";
+    });
 }
 
 // Redirect HTTP to HTTPS

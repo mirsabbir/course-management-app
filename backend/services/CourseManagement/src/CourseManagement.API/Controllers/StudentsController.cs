@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CourseManagement.Application.DTOs;
+using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.API.Controllers
@@ -7,5 +10,47 @@ namespace CourseManagement.API.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
+        private readonly IStudentService _studentService;
+
+        public StudentsController(IStudentService studentService)
+        {
+            _studentService = studentService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var students = await _studentService.GetAllAsync();
+            return Ok(students);
+        }
+
+        [HttpGet("{studentId}")]
+        public async Task<IActionResult> GetById(Guid studentId)
+        {
+            var student = await _studentService.GetByIdAsync(studentId);
+            if (student == null) return NotFound();
+            return Ok(student);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateStudentDTO dto)
+        {
+            var student = await _studentService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = student.Id }, student);
+        }
+
+        [HttpPut("{studentId}")]
+        public async Task<IActionResult> Update(Guid studentId, UpdateStudentDTO dto)
+        {
+            var updated = await _studentService.UpdateAsync(dto);
+            return Ok();
+        }
+
+        [HttpDelete("{studentId}")]
+        public async Task<IActionResult> Delete(Guid studentId)
+        {
+            await _studentService.DeleteAsync(studentId);
+            return Ok();
+        }
     }
 }
