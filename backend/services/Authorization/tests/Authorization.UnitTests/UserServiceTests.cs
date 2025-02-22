@@ -70,26 +70,18 @@ namespace Authorization.UnitTests
             // Arrange
             var email = "test@example.com";
             var fullName = "John Doe";
-            var token = "validToken";
-            var invitation = new Invitation
-            {
-                Id = Guid.NewGuid(),
-                Email = email,
-                Token = token,
-                FullName = fullName,
-                ExpirationDate = DateTime.UtcNow.AddDays(1)
-            };
 
             // Set up mock repository behavior
             _mockInvitationRepo.Setup(repo => repo.SaveInvitationAsync(It.IsAny<Invitation>())).Returns(Task.CompletedTask);
             _mockEmailService.Setup(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 
             // Act
-            await _userService.SendInvitationAsync(email, fullName);
+            var returnedId = await _userService.SendInvitationAsync(email, fullName);
 
             // Assert: Verify that the invitation was saved and email was sent
             _mockInvitationRepo.Verify(repo => repo.SaveInvitationAsync(It.IsAny<Invitation>()), Times.Once);
             _mockEmailService.Verify(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            
         }
 
         [Fact]

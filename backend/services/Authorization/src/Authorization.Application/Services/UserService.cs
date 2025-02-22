@@ -30,7 +30,7 @@ namespace Authorization.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task SendInvitationAsync(string email, string fullName)
+        public async Task<Guid> SendInvitationAsync(string email, string fullName)
         {
             // Generate a unique invitation token
             var token = GenerateInvitationToken(email);
@@ -52,6 +52,7 @@ namespace Authorization.Application.Services
             var tokenQueryParam = Uri.EscapeDataString(token);
             var invitationLink = $"https://localhost:7209/account/acceptinvitation?token={tokenQueryParam}";
             await _emailService.SendEmailAsync(email, "Invitation to Join", $"Click here to register: {invitationLink}");
+            return invitation.Id;
         }
 
         public async Task CompleteRegistrationAsync(string token, string password)
@@ -66,6 +67,7 @@ namespace Authorization.Application.Services
             // Create the user
             var user = new User
             {
+                Id = invitation.Id.ToString(),
                 UserName = invitation.Email,
                 Email = invitation.Email,
                 FullName = invitation.FullName

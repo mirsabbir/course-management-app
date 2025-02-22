@@ -18,17 +18,17 @@ namespace Authorization.API.Controllers
     {
         private readonly IUserService _userService = userService;
 
-        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+       // [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO request)
         {
-            await _userService.SendInvitationAsync(request.Email, request.FullName);
+            var id = await _userService.SendInvitationAsync(request.Email, request.FullName);
 
-            return Ok();
+            return Ok(new { userId = id });
         }
 
         // GET: api/users
-        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        //[AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
