@@ -31,8 +31,7 @@ function Callback() {
             grant_type: "authorization_code",
             code,
             redirect_uri: "http://localhost:3000/callback",
-            client_id: "mvc",
-            client_secret: "mvc_secret",
+            client_id: "frontend-app",
             code_verifier: codeVerifier, // Include the code_verifier here
           }),
           {

@@ -38,13 +38,13 @@ function Navbar() {
 
     // Redirect to the OAuth provider's authorization endpoint
     const authEndpoint = "http://localhost:5161/connect/authorize";
-    const clientId = "mvc";
+    const clientId = "frontend-app";
     const redirectUrl = encodeURIComponent("http://localhost:3000/callback");
-    const scope = encodeURIComponent("openid profile api1");
+    const scope = encodeURIComponent("openid profile offline_access course.manage");
     const state = "some_random_state_value"; // For CSRF protection
 
     const authUrl = `${authEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-
+  
     // Redirect the user to the OAuth provider
     window.location.href = authUrl;
   };

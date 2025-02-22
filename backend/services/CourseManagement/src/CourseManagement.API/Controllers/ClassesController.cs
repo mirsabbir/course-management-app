@@ -1,4 +1,5 @@
-﻿using CourseManagement.Application.DTOs.Classes;
+﻿using Authorization.API;
+using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,7 @@ namespace CourseManagement.API.Controllers
             _classService = classService;
         }
 
+        
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -32,11 +34,12 @@ namespace CourseManagement.API.Controllers
             return Ok(course);
         }
 
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
         [HttpPost]
         public async Task<IActionResult> Create(CreateClassDTO dto)
         {
             var @class = await _classService.CreateClassAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = @class.Id }, @class);
+            return CreatedAtAction(nameof(GetById), new { classId = @class.Id }, @class);
         }
 
         [HttpPut("{classId}")]

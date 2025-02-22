@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Writers;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Authorization.API.Controllers
 {
@@ -16,14 +18,36 @@ namespace Authorization.API.Controllers
     {
         private readonly IUserService _userService = userService;
 
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        [AuthorizeRolesAndScopes(["Staff"], [])]
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO request)
         {
-            await _userService.SendInvitationAsync(request.Email);
+            await _userService.SendInvitationAsync(request.Email, request.FullName);
 
             return Ok();
+        }
+
+        // GET: api/users
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsers();
+            return Ok(users);
+        }
+
+        // GET: api/users/{id}
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(Guid id)
+        {
+            var user = await _userService.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
         }
     }
 }

@@ -39,46 +39,46 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
 // Configure JWT authentication
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//.AddJwtBearer(options =>
-//{
-//    // IdentityServer authority (the base URL of your IdentityServer [iss])
-//    options.Authority = "http://localhost:5161";
-//    options.RequireHttpsMetadata = false;
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // IdentityServer authority (the base URL of your IdentityServer [iss])
+    options.Authority = "http://localhost:5161";
+    options.RequireHttpsMetadata = false;
 
-//    // Audience of the token (must match the API resource name in IdentityServer [aud])
-//    options.Audience = "http://localhost:5161/resources";
+    // Audience of the token (must match the API resource name in IdentityServer [aud])
+    options.Audience = "http://localhost:5161/resources";
 
-//    // Token validation parameters
-//    options.TokenValidationParameters = new TokenValidationParameters
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true,
-//        ClockSkew = TimeSpan.Zero
-//    };
+    // Token validation parameters
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero
+    };
 
-//    // Enable token validation events
-//    options.Events = new JwtBearerEvents
-//    {
-//        // only for debugging
-//        OnAuthenticationFailed = context =>
-//        {
-//            Console.WriteLine("Authentication failed: " + context.Exception.Message);
-//            return Task.CompletedTask;
-//        },
-//        OnTokenValidated = context =>
-//        {
-//            Console.WriteLine("Token validated: " + context.SecurityToken);
-//            return Task.CompletedTask;
-//        }
-//    };
-//});
+    // Enable token validation events
+    options.Events = new JwtBearerEvents
+    {
+        // only for debugging
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine("Authentication failed: " + context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validated: " + context.SecurityToken);
+            return Task.CompletedTask;
+        }
+    };
+});
 
 var app = builder.Build();
 

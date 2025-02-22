@@ -42,7 +42,7 @@ namespace Authorization.API.Pages.Account.AcceptInvitation
                 return Page();
             }
 
-            return RedirectToPage("/Account/Login");
+            return Redirect("http://localhost:3000/");
         }
     }
 }

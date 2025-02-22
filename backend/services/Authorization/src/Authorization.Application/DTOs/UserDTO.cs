@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Authorization.Application.DTOs
 {
-    public class CreateUserDTO
+    public class UserDTO
     {
-        public string Email { get; set; }
+        public string Id { get; set; }
         public string FullName { get; set; }
+        public DateTime DateOfBirth { get; set; }
     }
 }

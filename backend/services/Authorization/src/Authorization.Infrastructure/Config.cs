@@ -14,36 +14,37 @@ public static class Config
 
     public static IEnumerable<ApiScope> ApiScopes =>
     [
-        new ApiScope("api1", "My API")
+        new ApiScope("user.manage", "manage users"),
+        new ApiScope("course.manage", "manage courses"),
     ];
 
     public static IEnumerable<Client> Clients =>
     [
         new Client
         {
-            ClientId = "client",
+            ClientId = "course-management-api",
+            Description = "Client for M2M authentication for dotnet course management webapi",
             AllowedGrantTypes = GrantTypes.ClientCredentials,
             ClientSecrets =
             {
                 new Secret("secret".Sha256())
             },
-            AllowedScopes = { "api1" }
+            AllowedScopes = { "user.manage" }
         },
         new Client
         {
-            ClientId = "mvc",
-            ClientName = "MVC Client",
+            ClientId = "frontend-app",
+            ClientName = "Course Management React App",
             AllowedGrantTypes = GrantTypes.Code,
-            RequirePkce = false,
+            RequirePkce = true,
             RequireClientSecret = false,
-            
             ClientSecrets =
             {
-                new Secret("mvc_secret".Sha256())
+                new Secret("secret".Sha256())
             },
             RedirectUris = { "http://localhost:3000/callback" },
-            PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-            AllowedScopes = { "openid", "profile", "api1" },
+            PostLogoutRedirectUris = { "http://localhost:3000/signout-callback-oidc" },
+            AllowedScopes = { "openid", "profile", "course.manage" },
             AllowOfflineAccess = true
         }
     ];

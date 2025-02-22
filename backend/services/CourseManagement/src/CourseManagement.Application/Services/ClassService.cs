@@ -188,13 +188,13 @@ namespace CourseManagement.Application.Services
         
         private Guid? GetCurrentUserId()
         {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("UserId")?.Value;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
             return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
         }
 
         private string? GetCurrentUserName()
         {
-            return _httpContextAccessor.HttpContext?.User?.FindFirst("UserName")?.Value;
+            return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value;
         }
     }
 }

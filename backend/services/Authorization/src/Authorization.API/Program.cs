@@ -4,6 +4,7 @@ using Authorization.Domain;
 using Authorization.Infrastructure;
 using Authorization.Infrastructure.Repositories;
 using Authorization.Infrastructure.Services;
+using Duende.IdentityServer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -21,6 +22,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Register Infrastructure Layer services
 builder.Services.AddScoped<IInvitationRepository, InvitationRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Register the ApplicationDbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -58,7 +60,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddAuthentication(options =>
 {
     //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    //options.DefaultChallengeScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme; 
     options.DefaultScheme = "Cookies";
     options.DefaultChallengeScheme = "oidc";
     
@@ -102,6 +104,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Add authorization policies (optional)
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", policy =>
+    {
+        policy.RequireClaim("scope", "api");
+    });
+});
 
 // CORS
 
