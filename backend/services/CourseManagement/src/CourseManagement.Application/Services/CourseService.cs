@@ -108,11 +108,11 @@ namespace CourseManagement.Application.Services
         public async Task<CourseDTO> GetCourseByIdAsync(Guid id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
-            var user = await _userService.GetUserByIdAsync(course.CreatedById);
 
             if (course == null)
                 throw new KeyNotFoundException("Course not found.");
 
+            var user = await _userService.GetUserByIdAsync(course.CreatedById);
             return new CourseDTO
             {
                 Id = course.Id,
