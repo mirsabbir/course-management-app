@@ -26,6 +26,7 @@ namespace CourseManagement.API.Controllers
             return Ok(courses);
         }
 
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
         [HttpGet("{classId}")]
         public async Task<IActionResult> GetById(Guid classId)
         {
@@ -34,7 +35,7 @@ namespace CourseManagement.API.Controllers
             return Ok(course);
         }
 
-        //[AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
         [HttpPost]
         public async Task<IActionResult> Create(CreateClassDTO dto)
         {

@@ -28,12 +28,25 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(
-            builder.Configuration["DatabaseConnectionString"],
-            npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "CourseManagement"))
-           .EnableSensitiveDataLogging() // Useful during development for debugging
-           .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+if (builder.Environment.IsEnvironment("IntegrationTest"))
+{
+    // Use in-memory database for testing
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    {
+        options.UseInMemoryDatabase("InMemoryDbForTesting");
+    });
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+       options.UseNpgsql(
+               builder.Configuration["DatabaseConnectionString"],
+               npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "CourseManagement"))
+              .EnableSensitiveDataLogging() // Useful during development for debugging
+              .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
+}
+
+   
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -119,3 +132,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+public partial class Program { }

@@ -22,7 +22,7 @@ namespace CourseManagement.Application.Validators
 
             RuleFor(x => x.DateOfBirth)
                 .NotEmpty().WithMessage("Date of Birth is required.")
-                .Must(BeValidAge).WithMessage("Student must be at least 18 years old.");
+                .Must(BeValidAge).WithMessage("Student must be at least 6 years old.");
         }
 
         private bool BeValidAge(DateTime dateOfBirth)

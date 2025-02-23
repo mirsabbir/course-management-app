@@ -42,6 +42,16 @@ namespace Authorization.Application.Services
 
             try
             {
+
+                // Check if an invitation already exists with this email
+                var existingInvitation = await _invitationRepository.GetInvitationByEmailAsync(email);
+                if (existingInvitation != null)
+                {
+                    _logger.LogInformation("Invitation already exists for email {Email} with Invitation ID {InvitationId}", email, existingInvitation.Id);
+                    // Return the existing invitation ID, or handle the scenario based on your business logic.
+                    return existingInvitation.Id;
+                }
+
                 // Generate a unique invitation token
                 var token = GenerateInvitationToken(email);
                 _logger.LogInformation("Generated invitation token for email {Email}", email);

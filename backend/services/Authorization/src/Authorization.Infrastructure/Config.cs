@@ -46,7 +46,18 @@ public static class Config
             PostLogoutRedirectUris = { "http://localhost:3000/signout-callback-oidc" },
             AllowedScopes = { "openid", "profile", "course.manage" },
             AllowOfflineAccess = true
-        }
+        },
+        new Client
+        {
+            ClientId = "integration-test",
+            Description = "Client for M2M authentication for integration test",
+            AllowedGrantTypes = GrantTypes.ClientCredentials,
+            ClientSecrets =
+            {
+                new Secret("secret".Sha256())
+            },
+            AllowedScopes = { "course.manage" }
+        },
     ];
 
     public static List<TestUser> Users => new List<TestUser>

@@ -43,5 +43,12 @@ namespace Authorization.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<Invitation> GetInvitationByEmailAsync(string email)
+        {
+            return await _context.Invitations
+                                   .FirstOrDefaultAsync(i => i.Email == email);
+        }
+
     }
 }
