@@ -73,12 +73,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    // IdentityServer authority (the base URL of your IdentityServer [iss])
-    options.Authority = "http://localhost:5161";
+    // IdentityServer authority (the base URL of IdentityServer [iss])
+    options.Authority = builder.Configuration["HostUrl"];
     options.RequireHttpsMetadata = false;
 
     // Audience of the token (must match the API resource name in IdentityServer [aud])
-    options.Audience = "http://localhost:5161/resources";
+    options.Audience = builder.Configuration["JwtAudience"];
 
     // Token validation parameters
     options.TokenValidationParameters = new TokenValidationParameters
@@ -115,7 +115,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // CORS
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>

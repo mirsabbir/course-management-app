@@ -43,7 +43,7 @@ public static class Config
                 new Secret("secret".Sha256())
             },
             RedirectUris = { "http://localhost:3000/callback" },
-            PostLogoutRedirectUris = { "http://localhost:3000/signout-callback-oidc" },
+            PostLogoutRedirectUris = { "http://localhost:3000/signout-callback" },
             AllowedScopes = { "openid", "profile", "course.manage" },
             AllowOfflineAccess = true
         },

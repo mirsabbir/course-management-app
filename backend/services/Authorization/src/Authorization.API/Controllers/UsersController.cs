@@ -1,14 +1,6 @@
 ﻿using Authorization.Application.DTOs;
 using Authorization.Application.Interfaces;
-using Authorization.Domain;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Writers;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Authorization.API.Controllers
 {
@@ -18,7 +10,7 @@ namespace Authorization.API.Controllers
     {
         private readonly IUserService _userService = userService;
 
-       // [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO request)
         {
@@ -28,7 +20,7 @@ namespace Authorization.API.Controllers
         }
 
         // GET: api/users
-        //[AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

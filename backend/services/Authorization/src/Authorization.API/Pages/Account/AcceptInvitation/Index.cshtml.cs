@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Authorization.API.Pages.Account.AcceptInvitation
 {
-    public class IndexModel(IUserService userService) : PageModel
+    public class IndexModel(IUserService userService, IConfiguration configuration) : PageModel
     {
         private readonly IUserService _userService = userService;
+        private readonly IConfiguration _configuration = configuration;
 
         [BindProperty]
         public InputModel Input { get; set; }
@@ -42,7 +43,7 @@ namespace Authorization.API.Pages.Account.AcceptInvitation
                 return Page();
             }
 
-            return Redirect("http://localhost:3000/");
+            return Redirect(_configuration["CourseManagementAppHostUrl"] ?? "http://localhost:3000");
         }
     }
 }

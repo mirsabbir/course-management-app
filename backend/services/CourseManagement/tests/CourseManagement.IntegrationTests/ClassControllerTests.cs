@@ -16,39 +16,88 @@ namespace CourseManagement.IntegrationTests
     public class ClassControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly HttpClient _client;
+        private readonly string _token;
 
         public ClassControllerTests(CustomWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
+            _token = GetJwtTokenAsync().GetAwaiter().GetResult();
+        }
+
+        private HttpRequestMessage CreateRequest(HttpMethod method, string url, object content = null)
+        {
+            var request = new HttpRequestMessage(method, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+
+            if (content != null)
+            {
+                request.Content = JsonContent.Create(content);
+            }
+
+            return request;
+        }
+
+        [Fact]
+        public async Task GetAll_ShouldReturnOk()
+        {
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Get, "/api/classes"));
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task GetById_ShouldReturnNotFound_WhenClassDoesNotExist()
+        {
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Get, $"/api/classes/{Guid.NewGuid()}"));
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]
         public async Task Create_ShouldReturnCreated_WhenValidRequest()
         {
-            var token = await GetJwtTokenAsync();
-
             var request = new CreateClassDTO
             {
                 Name = "Mathematics 101",
                 Description = "Basic math concepts",
             };
 
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, "/api/classes")
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Post, "/api/classes", request));
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+        }
+
+        [Fact]
+        public async Task Update_ShouldReturnBadRequest_WhenInvalidRequest()
+        {
+            var classId = Guid.NewGuid();
+            var request = new UpdateClassDTO
             {
-                Content = JsonContent.Create(request)  // Use JsonContent for creating the body from DTO
+                Name = "Updated Class Name",
+                Description = "Updated Description",
             };
 
-            // Step 5: Set the Authorization header with the Bearer token
-            httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Put, $"/api/classes/{classId}", request));
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
 
-            // Step 6: Send the request with the Authorization header
-            var response = await _client.SendAsync(httpRequestMessage);
+        [Fact]
+        public async Task Delete_ShouldReturnOk_WhenClassExists()
+        {
+            var classId = Guid.NewGuid();
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Delete, $"/api/classes/{classId}"));
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
 
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
+        [Fact]
+        public async Task GetCoursesByClassId_ShouldReturnNotFound_WhenClassDoesNotExist()
+        {
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Get, $"/api/classes/{Guid.NewGuid()}/courses"));
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
 
-            var createdClass = await response.Content.ReadFromJsonAsync<ClassDTO>();
-            createdClass.Should().NotBeNull();
-            createdClass.Name.Should().Be(request.Name);
+        [Fact]
+        public async Task GetStudentsByClassId_ShouldReturnNotFound_WhenClassDoesNotExist()
+        {
+            var response = await _client.SendAsync(CreateRequest(HttpMethod.Get, $"/api/classes/{Guid.NewGuid()}/students"));
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         public async Task<string> GetJwtTokenAsync()

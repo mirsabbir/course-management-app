@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  authorization-api:
+    build:
+      context: ../backend/services/Authorization   # Point to the root of your backend folder
+      dockerfile: Dockerfile  # Dockerfile for the Authorization service
+    ports:
+      - "5161:8080"  # Expose container port 80 to host machine port 5161
+    env_file:
+      - ./.env  # Load environment variables from the .env file
+    depends_on:
+      - db  # If you have other services (like db), list them here
+
+  # Example for a database container (if required)
+  db:
+    build:
+      context: ../database   # Point to the root of your backend folder
+      dockerfile: Dockerfile  # Dockerfile for the Authorization service
+    ports:
+      - "5432:5432"  # Expose container port 80 to host machine port 5161
+    env_file:
+      - ./.env  # Load environment variables from the .env file
+
+volumes:
+  db-data:
