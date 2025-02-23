@@ -1,3 +1,4 @@
+using Authorization.API.Pages;
 using Authorization.Application.Interfaces;
 using Authorization.Application.Services;
 using Authorization.Domain;
@@ -12,6 +13,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Log = Serilog.Log;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,13 +64,8 @@ builder.Services.AddOpenApi();
 // Configure JWT authentication
 builder.Services.AddAuthentication(options =>
 {
-    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme; 
     options.DefaultScheme = "Cookies";
     options.DefaultChallengeScheme = "oidc";
-    
-    //options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
 })
 .AddJwtBearer(options =>
@@ -106,14 +104,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Add authorization policies (optional)
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", policy =>
-    {
-        policy.RequireClaim("scope", "api");
-    });
-});
+// Add Serilog logging
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // CORS
 

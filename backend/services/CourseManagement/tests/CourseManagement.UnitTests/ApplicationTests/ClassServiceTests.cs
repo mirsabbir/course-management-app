@@ -1,4 +1,5 @@
-﻿using CourseManagement.Application.DTOs;
+﻿using Castle.Core.Logging;
+using CourseManagement.Application.DTOs;
 using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
@@ -7,6 +8,7 @@ using CourseManagement.Application.Interfaces;
 using CourseManagement.Application.Services;
 using CourseManagement.Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
         private readonly Mock<IStudentRepository> _mockStudentRepository;
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly Mock<IUserService> _mockUserService;
+        private readonly Mock<ILogger<ClassService>> _mockLogger;
         private readonly ClassService _classService;
 
         public ClassServiceTests()
@@ -33,13 +36,15 @@ namespace CourseManagement.UnitTests.ApplicationTests
             _mockStudentRepository = new Mock<IStudentRepository>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             _mockUserService = new Mock<IUserService>();
+            _mockLogger = new Mock<ILogger<ClassService>>();
 
             _classService = new ClassService(
                 _mockClassRepository.Object,
                 _mockCourseRepository.Object,
                 _mockStudentRepository.Object,
                 _mockHttpContextAccessor.Object,
-                _mockUserService.Object
+                _mockUserService.Object,
+                _mockLogger.Object
             );
         }
 

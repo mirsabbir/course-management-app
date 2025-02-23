@@ -7,6 +7,7 @@ using CourseManagement.Application.Interfaces;
 using CourseManagement.Application.Services;
 using CourseManagement.Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
         private readonly Mock<IStudentRepository> _mockStudentRepository;
         private readonly Mock<IUserService> _mockUserService;
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
+        private readonly Mock<ILogger<CourseService>> _mockLogger;
         private readonly CourseService _courseService;
 
         public CourseServiceTests()
@@ -33,13 +35,15 @@ namespace CourseManagement.UnitTests.ApplicationTests
             _mockStudentRepository = new Mock<IStudentRepository>();
             _mockUserService = new Mock<IUserService>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+            _mockLogger = new Mock<ILogger<CourseService>>();
 
             _courseService = new CourseService(
                 _mockCourseRepository.Object,
                 _mockClassRepository.Object,
                 _mockStudentRepository.Object,
                 _mockUserService.Object,
-                _mockHttpContextAccessor.Object
+                _mockHttpContextAccessor.Object,
+                _mockLogger.Object
             );
         }
 

@@ -1,7 +1,9 @@
-﻿using CourseManagement.Application.DTOs;
+﻿using Castle.Core.Logging;
+using CourseManagement.Application.DTOs;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
@@ -22,14 +24,16 @@ namespace CourseManagement.UnitTests.InfrastructureTests
         private readonly HttpClient _mockHttpClient;
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly UserService _userService;
+        private readonly Mock<ILogger<UserService>> _mockLogger;
 
         public UserServiceTests()
         {
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
             _mockHttpClient = new HttpClient(_mockHttpMessageHandler.Object);
             _mockConfiguration = new Mock<IConfiguration>();
+            _mockLogger = new Mock<ILogger<UserService>>();
 
-            _userService = new UserService(_mockHttpClient, _mockConfiguration.Object);
+            _userService = new UserService(_mockHttpClient, _mockConfiguration.Object, _mockLogger.Object);
         }
 
         private void SetupGetAccessTokenAsync(string token = "mock-access-token")
