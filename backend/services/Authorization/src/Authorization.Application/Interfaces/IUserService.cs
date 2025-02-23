@@ -10,7 +10,7 @@ namespace Authorization.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<Guid> SendInvitationAsync(string email, string fullName);
+        Task<Guid> SendInvitationAsync(CreateUserDTO createUserDTO);
         Task CompleteRegistrationAsync(string token, string password);
         Task<Invitation> GetValidInvitationAsync(string token);
         Task<IEnumerable<UserDTO>> GetAllUsers();

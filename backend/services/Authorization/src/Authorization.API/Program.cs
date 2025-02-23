@@ -1,11 +1,14 @@
 using Authorization.API.Pages;
 using Authorization.Application.Interfaces;
 using Authorization.Application.Services;
+using Authorization.Application.Validators;
 using Authorization.Domain;
 using Authorization.Infrastructure;
 using Authorization.Infrastructure.Repositories;
 using Authorization.Infrastructure.Services;
 using Duende.IdentityServer;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -129,6 +132,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensures the cookie is always secure
 });
 
+// add fluent validation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
 
 var app = builder.Build();
 

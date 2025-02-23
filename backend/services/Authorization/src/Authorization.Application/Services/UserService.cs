@@ -34,8 +34,10 @@ namespace Authorization.Application.Services
             _logger = logger;
         }
 
-        public async Task<Guid> SendInvitationAsync(string email, string fullName)
+        public async Task<Guid> SendInvitationAsync(CreateUserDTO createUserDTO)
         {
+            string email = createUserDTO.Email;
+            string fullName = createUserDTO.FullName;
             _logger.LogInformation("Sending invitation to email {Email} for user {FullName}", email, fullName);
 
             try

@@ -5,6 +5,8 @@ using Moq;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Authorization.UnitTests
 {
@@ -15,6 +17,7 @@ namespace Authorization.UnitTests
         {
             // Arrange
             var mockSmtpClient = new Mock<ISmtpClient>();
+            var mockLogger = new Mock<ILogger<EmailService>>();
 
             // Setup the mock behavior to avoid exceptions
             mockSmtpClient.Setup(m => m.ConnectAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), default))
@@ -30,7 +33,7 @@ namespace Authorization.UnitTests
             mockSmtpClient.Setup(m => m.DisconnectAsync(It.IsAny<bool>(), default))
                           .Returns(Task.CompletedTask);
 
-            var emailService = new EmailService(mockSmtpClient.Object);
+            var emailService = new EmailService(mockSmtpClient.Object, mockLogger.Object);
 
             var recipient = "test@example.com";
             var subject = "Test Subject";

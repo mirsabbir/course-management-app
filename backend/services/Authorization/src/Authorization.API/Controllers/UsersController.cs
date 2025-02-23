@@ -22,7 +22,7 @@ namespace Authorization.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] CreateUserDTO request)
         {
-            var id = await _userService.SendInvitationAsync(request.Email, request.FullName);
+            var id = await _userService.SendInvitationAsync(request);
 
             return Ok(new { userId = id });
         }

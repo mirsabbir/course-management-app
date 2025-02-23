@@ -3,10 +3,14 @@ using CourseManagement.Application.Services;
 using CourseManagement.Infrastructure;
 using CourseManagement.Infrastructure.Repositories;
 using CourseManagement.Infrastructure.Services;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using CourseManagement.Application.DTOs.Classes;
+using CourseManagement.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +84,11 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+// add fluent validation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateClassDtoValidator>();
+builder.Services.AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
 
 // Add Serilog logging
 Log.Logger = new LoggerConfiguration()

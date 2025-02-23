@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Xunit;
 using Authorization.Application.Interfaces;
 using Authorization.Application.Services;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Authorization.UnitTests
 {
@@ -16,6 +18,7 @@ namespace Authorization.UnitTests
         private readonly Mock<IInvitationRepository> _mockInvitationRepo;
         private readonly Mock<IEmailService> _mockEmailService;
         private readonly Mock<IUserRepository> _mockUserRepo;
+        private readonly Mock<ILogger<UserService>> _mockLogger;
         private readonly UserService _userService;
         private readonly Mock<UserManager<User>> _mockUserManager;
 
@@ -25,6 +28,7 @@ namespace Authorization.UnitTests
         {
             _mockInvitationRepo = new Mock<IInvitationRepository>();
             _mockEmailService = new Mock<IEmailService>();
+            _mockLogger = new Mock<ILogger<UserService>>();
 
             // Set up a list of users for testing
             _users = new List<User>
@@ -42,7 +46,8 @@ namespace Authorization.UnitTests
                 _mockInvitationRepo.Object,
                 _mockEmailService.Object,
                 _mockUserManager.Object,
-                _mockUserRepo.Object);
+                _mockUserRepo.Object,
+                _mockLogger.Object);
         }
 
         // Helper method to mock UserManager
@@ -76,7 +81,7 @@ namespace Authorization.UnitTests
             _mockEmailService.Setup(service => service.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 
             // Act
-            var returnedId = await _userService.SendInvitationAsync(email, fullName);
+            var returnedId = await _userService.SendInvitationAsync(new CreateUserDTO { Email = email, FullName= fullName });
 
             // Assert: Verify that the invitation was saved and email was sent
             _mockInvitationRepo.Verify(repo => repo.SaveInvitationAsync(It.IsAny<Invitation>()), Times.Once);
