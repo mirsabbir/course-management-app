@@ -12,7 +12,6 @@ WORKDIR /src/Authorization.API/
 RUN dotnet restore "./Authorization.API.csproj"
 RUN dotnet build "./Authorization.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
 
-
 RUN dotnet publish "./Authorization.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish -r linux-musl-x64
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS run
