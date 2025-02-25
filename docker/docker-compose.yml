@@ -18,7 +18,7 @@ services:
       context: ../backend/services/CourseManagement   # Point to the root of your backend folder
       dockerfile: Dockerfile  # Dockerfile for the Authorization service
     ports:
-      - "5006:8080" 
+      - "5181:8080" 
     env_file:
       - ./.env  
     depends_on:

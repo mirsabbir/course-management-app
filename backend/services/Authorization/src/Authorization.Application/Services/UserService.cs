@@ -2,6 +2,7 @@
 using Authorization.Application.Interfaces;
 using Authorization.Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -19,19 +20,22 @@ namespace Authorization.Application.Services
         private readonly UserManager<User> _userManager;
         private readonly IUserRepository _userRepository;
         private readonly ILogger<UserService> _logger;
+        private readonly IConfiguration _configuration;
 
         public UserService(
             IInvitationRepository invitationRepository,
             IEmailService emailService,
             UserManager<User> userManager,
             IUserRepository userRepository,
-            ILogger<UserService> logger)
+            ILogger<UserService> logger,
+            IConfiguration configuration)
         {
             _invitationRepository = invitationRepository;
             _emailService = emailService;
             _userManager = userManager;
             _userRepository = userRepository;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<Guid> SendInvitationAsync(CreateUserDTO createUserDTO)
@@ -72,7 +76,7 @@ namespace Authorization.Application.Services
 
                 // Send the invitation email
                 var tokenQueryParam = Uri.EscapeDataString(token);
-                var invitationLink = $"https://localhost:7209/account/acceptinvitation?token={tokenQueryParam}";
+                var invitationLink = $"{_configuration["HostUrl"]}/account/acceptinvitation?token={tokenQueryParam}";
                 await _emailService.SendEmailAsync(email, "Invitation to Join", $"Click here to register: {invitationLink}");
 
                 _logger.LogInformation("Successfully sent invitation email to {Email}", email);

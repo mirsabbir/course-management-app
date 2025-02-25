@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Authorization.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class test_migration : Migration
+    public partial class init_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,7 @@ namespace Authorization.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
                     Token = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },

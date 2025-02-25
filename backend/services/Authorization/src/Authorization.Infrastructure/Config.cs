@@ -44,7 +44,7 @@ public static class Config
             },
             RedirectUris = { "http://localhost:3000/callback" },
             PostLogoutRedirectUris = { "http://localhost:3000/signout-callback" },
-            AllowedScopes = { "openid", "profile", "course.manage" },
+            AllowedScopes = { "openid", "profile", "course.manage", "offline_access" },
             AllowOfflineAccess = true
         },
         new Client
