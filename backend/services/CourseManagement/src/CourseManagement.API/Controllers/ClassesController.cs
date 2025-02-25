@@ -12,6 +12,7 @@ namespace CourseManagement.API.Controllers
     {
         private readonly IClassService _classService = classService;
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -32,9 +33,10 @@ namespace CourseManagement.API.Controllers
         public async Task<IActionResult> Create(CreateClassDTO dto)
         {
             var @class = await _classService.CreateClassAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { classId = @class.Id }, @class);
+            return StatusCode(StatusCodes.Status201Created, @class);
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpPut("{classId}")]
         public async Task<IActionResult> Update(Guid classId, UpdateClassDTO dto)
         {
@@ -42,6 +44,7 @@ namespace CourseManagement.API.Controllers
             return Ok();
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpDelete("{classId}")]
         public async Task<IActionResult> Delete(Guid classId)
         {
@@ -49,6 +52,7 @@ namespace CourseManagement.API.Controllers
             return Ok();
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpGet("{classId}/courses")]
         public async Task<IActionResult> GetCoursesByClassId(Guid classId)
         {
@@ -57,6 +61,7 @@ namespace CourseManagement.API.Controllers
             return Ok(courses);
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpGet("{classId}/students")]
         public async Task<IActionResult> GetStudentsByClassId(Guid classId)
         {

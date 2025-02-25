@@ -79,11 +79,11 @@ namespace CourseManagement.IntegrationTests
         }
 
         [Fact]
-        public async Task Delete_ShouldReturnOk_WhenClassExists()
+        public async Task Delete_ShouldReturnOk_WhenClassDoesNotExist()
         {
             var classId = Guid.NewGuid();
             var response = await _client.SendAsync(CreateRequest(HttpMethod.Delete, $"/api/classes/{classId}"));
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]

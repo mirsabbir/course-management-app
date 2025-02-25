@@ -2,12 +2,13 @@
 using CourseManagement.Application.DTOs;
 using CourseManagement.Application.DTOs.Students;
 using CourseManagement.Application.Interfaces;
+using CourseManagement.Domain.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.API.Controllers
 {
-    [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
+    [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
     [Route("api/[controller]")]
     [ApiController]
     public class StudentsController : ControllerBase
@@ -38,7 +39,7 @@ namespace CourseManagement.API.Controllers
         public async Task<IActionResult> Create(CreateStudentDTO dto)
         {
             var student = await _studentService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { studentId = student.Id }, student);
+            return StatusCode(StatusCodes.Status201Created, student);
         }
 
         [HttpPut("{studentId}")]
