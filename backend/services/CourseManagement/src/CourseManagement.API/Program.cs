@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.Validators;
+using CourseManagement.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,11 +43,9 @@ else
        options.UseNpgsql(
                builder.Configuration["DatabaseConnectionString"],
                npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "CourseManagement"))
-              .EnableSensitiveDataLogging() // Useful during development for debugging
+              .EnableSensitiveDataLogging() // Only for debugging
               .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 }
-
-   
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -64,12 +63,12 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    // IdentityServer authority (the base URL of your IdentityServer [iss])
-    options.Authority = "http://localhost:5161";
+    // IdentityServer authority (the base URL of IdentityServer [iss])
+    options.Authority = builder.Configuration["AuthServer:Url"];
     options.RequireHttpsMetadata = false;
 
     // Audience of the token (must match the API resource name in IdentityServer [aud])
-    options.Audience = "http://localhost:5161/resources";
+    options.Audience = builder.Configuration["AuthServer:JwtAudience"];
 
     // Token validation parameters
     options.TokenValidationParameters = new TokenValidationParameters
@@ -124,6 +123,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 

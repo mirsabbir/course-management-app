@@ -25,7 +25,7 @@ namespace CourseManagement.Infrastructure.EntityTypeConfigurations
                 .HasForeignKey(cc => cc.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(cc => cc.AssignedBy)
+            builder.Property(cc => cc.AssignedById)
                 .IsRequired();
         }
     }

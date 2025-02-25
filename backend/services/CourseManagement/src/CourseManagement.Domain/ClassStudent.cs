@@ -14,6 +14,7 @@ namespace CourseManagement.Domain
         public Guid StudentId { get; set; }
         public Student Student { get; set; }
 
-        public Guid AssignedBy { get; set; }
+        public Guid AssignedById { get; set; }
+        public required string AssignedByName { get; set; }
     }
 }

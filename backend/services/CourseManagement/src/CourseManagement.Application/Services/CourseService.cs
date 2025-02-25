@@ -2,6 +2,7 @@
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Exceptions;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain;
 using Microsoft.AspNetCore.Http;
@@ -13,30 +14,20 @@ using System.Threading.Tasks;
 
 namespace CourseManagement.Application.Services
 {
-    public class CourseService : ICourseService
+    public class CourseService(
+        ICourseRepository courseRepository,
+        IClassRepository classRepository,
+        IStudentRepository studentRepository,
+        IUserService userService,
+        IHttpContextAccessor httpContextAccessor,
+        ILogger<CourseService> logger) : ICourseService
     {
-        private readonly ICourseRepository _courseRepository;
-        private readonly IClassRepository _classRepository;
-        private readonly IStudentRepository _studentRepository;
-        private readonly IUserService _userService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<CourseService> _logger;
-
-        public CourseService(
-            ICourseRepository courseRepository, 
-            IClassRepository classRepository, 
-            IStudentRepository studentRepository,
-            IUserService userService,
-            IHttpContextAccessor httpContextAccessor,
-            ILogger<CourseService> logger)
-        {
-            _courseRepository = courseRepository;
-            _classRepository = classRepository;
-            _studentRepository = studentRepository;
-            _userService = userService;
-            _httpContextAccessor = httpContextAccessor;
-            _logger = logger;
-        }
+        private readonly ICourseRepository _courseRepository = courseRepository;
+        private readonly IClassRepository _classRepository = classRepository;
+        private readonly IStudentRepository _studentRepository = studentRepository;
+        private readonly IUserService _userService = userService;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly ILogger<CourseService> _logger = logger;
 
         public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO createCourseDTO)
         {
@@ -51,7 +42,8 @@ namespace CourseManagement.Application.Services
                 Name = createCourseDTO.Name,
                 Description = createCourseDTO.Description,
                 CreatedAt = DateTime.UtcNow,
-                CreatedById = GetCurrentUserId() ?? Guid.Empty,
+                CreatedById = GetCurrentUserId(),
+                CreatedByName = GetCurrentUserName()
             };
 
             // Log the details of the newly created course
@@ -90,20 +82,31 @@ namespace CourseManagement.Application.Services
             return courseDTO;
         }
 
-
         public async Task DeleteCourseAsync(Guid id)
         {
             _logger.LogInformation("Deleting course with ID {CourseId}", id);
 
             try
             {
+                var course = await _courseRepository.GetByIdAsync(id);
+                if (course == null)
+                {
+                    _logger.LogWarning("Course with ID {CourseId} not found", id);
+                    throw new NotFoundException($"Course with ID {id} was not found.");
+                }
+
                 await _courseRepository.DeleteAsync(id);
+
                 _logger.LogInformation("Successfully deleted course with ID {CourseId}", id);
+            }
+            catch (NotFoundException)
+            {
+                throw; // Allow NotFoundException to propagate as-is
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to delete course with ID {CourseId}", id);
-                throw; // Re-throw the exception after logging
+                throw; // Preserve stack trace
             }
         }
 
@@ -127,7 +130,7 @@ namespace CourseManagement.Application.Services
                         courseEnrollmentDTO.StudentId,
                         courseEnrollmentDTO.CourseId
                     );
-                    throw new ArgumentException("Invalid student or course.");
+                    throw new NotFoundException("Invalid student or course.");
                 }
 
                 if (course.CourseStudents.Any(cs => cs.StudentId == courseEnrollmentDTO.StudentId))
@@ -144,7 +147,8 @@ namespace CourseManagement.Application.Services
                 {
                     CourseId = courseEnrollmentDTO.CourseId,
                     StudentId = courseEnrollmentDTO.StudentId,
-                    AssignedBy = GetCurrentUserId() ?? Guid.Empty,
+                    AssignedById = GetCurrentUserId(),
+                    AssignedByName = GetCurrentUserName()
                 };
 
                 course.CourseStudents.Add(courseStudent);
@@ -175,7 +179,6 @@ namespace CourseManagement.Application.Services
             try
             {
                 var courses = await _courseRepository.GetAllAsync();
-                var users = await _userService.GetAllUsersAsync();
 
                 var result = courses.Select(c => new CourseDTO
                 {
@@ -183,7 +186,7 @@ namespace CourseManagement.Application.Services
                     Name = c.Name,
                     Description = c.Description,
                     CreatedAt = c.CreatedAt,
-                    CreatedBy = users.FirstOrDefault(u => u.Id == c.CreatedById)?.FullName ?? "Unknown",
+                    CreatedBy = c.CreatedByName,
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {CourseCount} courses", result.Count);
@@ -210,18 +213,12 @@ namespace CourseManagement.Application.Services
                 _logger.LogWarning("Course with Id {CourseId} not found.", id);
 
                 // Throw an exception if the course is not found
-                throw new KeyNotFoundException($"Course with Id {id} not found.");
+                throw new NotFoundException($"Course with Id {id} not found.");
             }
 
             // Log that the course was found and include relevant details
             _logger.LogInformation("Course found: {CourseId}, Name: {CourseName}, CreatedAt: {CreatedAt}, CreatedById: {CreatedById}",
                 course.Id, course.Name, course.CreatedAt, course.CreatedById);
-
-            // Retrieve user information
-            var user = await _userService.GetUserByIdAsync(course.CreatedById);
-
-            // Log the user info associated with the course
-            _logger.LogInformation("Course created by user: {CreatedById}, FullName: {UserFullName}", course.CreatedById, user.FullName);
 
             // Return the CourseDTO
             var courseDTO = new CourseDTO
@@ -230,7 +227,7 @@ namespace CourseManagement.Application.Services
                 Name = course.Name,
                 Description = course.Description,
                 CreatedAt = course.CreatedAt,
-                CreatedBy = user.FullName,
+                CreatedBy = course.CreatedByName,
             };
 
             // Log that the CourseDTO is being returned with relevant details
@@ -251,17 +248,16 @@ namespace CourseManagement.Application.Services
                 if (course == null)
                 {
                     _logger.LogWarning("Course with ID {CourseId} not found", courseId);
-                    throw new KeyNotFoundException("Course not found.");
+                    throw new NotFoundException("Course not found.");
                 }
 
-                var users = await _userService.GetAllUsersAsync();
                 var classes = await _classRepository.GetByCourseIdAsync(courseId);
 
                 var result = classes.Select(c => new ClassDTO
                 {
                     Id = c.Id,
                     Name = c.Name,
-                    CreatedBy = users.FirstOrDefault(u => u.Id == c.CreatedById)?.FullName ?? "Unknown",
+                    CreatedBy = c.CreatedByName,
                     CreatedAt = c.CreatedAt,
                     Description = c.Description
                 }).ToList();
@@ -287,7 +283,7 @@ namespace CourseManagement.Application.Services
                 if (course == null)
                 {
                     _logger.LogWarning("Course with ID {CourseId} not found", id);
-                    throw new KeyNotFoundException("Course not found.");
+                    throw new NotFoundException("Course not found.");
                 }
 
                 var courseStudents = course.CourseStudents;
@@ -314,9 +310,8 @@ namespace CourseManagement.Application.Services
         public async Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO updateCourseDTO)
         {
             var course = await _courseRepository.GetByIdAsync(updateCourseDTO.Id);
-            var user = await _userService.GetUserByIdAsync(course.CreatedById);
             if (course == null)
-                throw new KeyNotFoundException("Course not found.");
+                throw new NotFoundException("Course not found.");
 
             course.Name = updateCourseDTO.Name;
             course.Description = updateCourseDTO.Description;
@@ -329,19 +324,19 @@ namespace CourseManagement.Application.Services
                 Name = course.Name,
                 Description = course.Description,
                 CreatedAt = course.CreatedAt,
-                CreatedBy = user.FullName,
+                CreatedBy = course.CreatedByName,
             };
         }
 
-        private Guid? GetCurrentUserId()
+        private Guid GetCurrentUserId()
         {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("UserId")?.Value;
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
         }
 
-        private string? GetCurrentUserName()
+        private string GetCurrentUserName()
         {
-            return _httpContextAccessor.HttpContext?.User?.FindFirst("UserName")?.Value;
+            return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value ?? string.Empty;
         }
     }
 }

@@ -1,41 +1,33 @@
 ﻿using Authorization.API;
 using CourseManagement.Application.DTOs.Classes;
-using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
+using CourseManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClassesController : ControllerBase
+    public class ClassesController(IClassService classService) : ControllerBase
     {
-        private readonly IClassService _classService;
+        private readonly IClassService _classService = classService;
 
-        public ClassesController(IClassService classService)
-        {
-            _classService = classService;
-        }
-
-        
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var courses = await _classService.GetAllClassesAsync();
-            return Ok(courses);
+            var classes = await _classService.GetAllClassesAsync();
+            return Ok(classes);
         }
 
-        [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
         [HttpGet("{classId}")]
         public async Task<IActionResult> GetById(Guid classId)
         {
-            var course = await _classService.GetClassByIdAsync(classId);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var @class = await _classService.GetClassByIdAsync(classId);
+            if (@class == null) return NotFound();
+            return Ok(@class);
         }
 
-        [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpPost]
         public async Task<IActionResult> Create(CreateClassDTO dto)
         {
@@ -46,7 +38,7 @@ namespace CourseManagement.API.Controllers
         [HttpPut("{classId}")]
         public async Task<IActionResult> Update(Guid classId, UpdateClassDTO dto)
         {
-            var updated = await _classService.UpdateClassAsync(dto);
+            _ = await _classService.UpdateClassAsync(dto);
             return Ok();
         }
 
@@ -60,17 +52,17 @@ namespace CourseManagement.API.Controllers
         [HttpGet("{classId}/courses")]
         public async Task<IActionResult> GetCoursesByClassId(Guid classId)
         {
-            var course = await _classService.GetCoursesAsync(classId);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var courses = await _classService.GetCoursesAsync(classId);
+            if (courses == null) return NotFound();
+            return Ok(courses);
         }
 
         [HttpGet("{classId}/students")]
         public async Task<IActionResult> GetStudentsByClassId(Guid classId)
         {
-            var course = await _classService.GetStudentsAsync(classId);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var students = await _classService.GetStudentsAsync(classId);
+            if (students == null) return NotFound();
+            return Ok(students);
         }
     }
 }

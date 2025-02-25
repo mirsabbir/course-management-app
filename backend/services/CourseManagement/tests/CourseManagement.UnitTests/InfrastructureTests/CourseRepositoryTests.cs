@@ -35,8 +35,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new CourseRepository(context);
-                var testCourse1 = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
-                var testCourse2 = new Course { Id = Guid.NewGuid(), Name = "Course 2", Description = "Description 2" };
+                var testCourse1 = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1", CreatedByName = string.Empty };
+                var testCourse2 = new Course { Id = Guid.NewGuid(), Name = "Course 2", Description = "Description 2", CreatedByName = string.Empty };
                 await context.Courses.AddRangeAsync(testCourse1, testCourse2);
                 await context.SaveChangesAsync();
 
@@ -57,7 +57,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new CourseRepository(context);
-                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
+                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" , CreatedByName = string.Empty };
                 await context.Courses.AddAsync(testCourse);
                 await context.SaveChangesAsync();
 
@@ -94,7 +94,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new CourseRepository(context);
-                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
+                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1", CreatedByName = string.Empty };
 
                 // Act
                 await repository.AddAsync(testCourse);
@@ -114,7 +114,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new CourseRepository(context);
-                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
+                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1", CreatedByName = string.Empty };
                 await context.Courses.AddAsync(testCourse);
                 await context.SaveChangesAsync();
 
@@ -139,7 +139,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new CourseRepository(context);
-                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
+                var testCourse = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1", CreatedByName = string.Empty };
                 await context.Courses.AddAsync(testCourse);
                 await context.SaveChangesAsync();
 
@@ -160,10 +160,10 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             {
                 var repository = new CourseRepository(context);
                 var classId = Guid.NewGuid();
-                var testCourse1 = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1" };
-                var testCourse2 = new Course { Id = Guid.NewGuid(), Name = "Course 2", Description = "Description 2" };
-                testCourse1.ClassCourses = new List<ClassCourse> { new ClassCourse { ClassId = classId } };
-                testCourse2.ClassCourses = new List<ClassCourse> { new ClassCourse { ClassId = Guid.NewGuid() } };
+                var testCourse1 = new Course { Id = Guid.NewGuid(), Name = "Course 1", Description = "Description 1", CreatedByName = string.Empty };
+                var testCourse2 = new Course { Id = Guid.NewGuid(), Name = "Course 2", Description = "Description 2", CreatedByName = string.Empty };
+                testCourse1.ClassCourses = new List<ClassCourse> { new ClassCourse { ClassId = classId, AssignedByName = string.Empty } };
+                testCourse2.ClassCourses = new List<ClassCourse> { new ClassCourse { ClassId = Guid.NewGuid(), AssignedByName = string.Empty } };
                 await context.Courses.AddRangeAsync(testCourse1, testCourse2);
                 await context.SaveChangesAsync();
 

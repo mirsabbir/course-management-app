@@ -41,7 +41,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "John Doe",
                     Email = "john.doe@example.com",
                     DateOfBirth = new DateTime(2000, 1, 1),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
                 var testStudent2 = new Student
                 {
@@ -49,7 +50,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "Jane Smith",
                     Email = "jane.smith@example.com",
                     DateOfBirth = new DateTime(1999, 5, 15),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
                 await context.Students.AddRangeAsync(testStudent1, testStudent2);
                 await context.SaveChangesAsync();
@@ -77,7 +79,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "John Doe",
                     Email = "john.doe@example.com",
                     DateOfBirth = new DateTime(2000, 1, 1),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
                 await context.Students.AddAsync(testStudent);
                 await context.SaveChangesAsync();
@@ -123,7 +126,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "John Doe",
                     Email = "john.doe@example.com",
                     DateOfBirth = new DateTime(2000, 1, 1),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
 
                 // Act
@@ -152,7 +156,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "John Doe",
                     Email = "john.doe@example.com",
                     DateOfBirth = new DateTime(2000, 1, 1),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
                 await context.Students.AddAsync(testStudent);
                 await context.SaveChangesAsync();
@@ -186,7 +191,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
                     FullName = "John Doe",
                     Email = "john.doe@example.com",
                     DateOfBirth = new DateTime(2000, 1, 1),
-                    UserId = Guid.NewGuid()
+                    UserId = Guid.NewGuid(),
+                    CreatedByName = string.Empty
                 };
                 await context.Students.AddAsync(testStudent);
                 await context.SaveChangesAsync();

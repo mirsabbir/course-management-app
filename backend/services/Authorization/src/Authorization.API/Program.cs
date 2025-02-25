@@ -1,3 +1,4 @@
+using Authorization.API.Middlewares;
 using Authorization.API.Pages;
 using Authorization.Application.Interfaces;
 using Authorization.Application.Services;
@@ -156,6 +157,8 @@ app.UseHttpsRedirection();
 
 // Serve static files (CSS, JS, images, etc.)
 app.UseStaticFiles();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Enable routing
 app.UseRouting();

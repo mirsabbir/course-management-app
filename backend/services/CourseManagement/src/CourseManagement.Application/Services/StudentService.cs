@@ -1,4 +1,5 @@
 ﻿using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Exceptions;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,8 @@ namespace CourseManagement.Application.Services
                 FullName = createStudentDTO.FullName,
                 Email = createStudentDTO.Email,
                 DateOfBirth = createStudentDTO.DateOfBirth,
-                UserId = Guid.Parse(userId) // Convert string userId to Guid
+                UserId = Guid.Parse(userId), // Convert string userId to Guid
+                CreatedByName = string.Empty
             };
 
             // Log the new student creation
@@ -111,7 +113,7 @@ namespace CourseManagement.Application.Services
                 if (student == null)
                 {
                     _logger.LogWarning("Student with ID {StudentId} not found", id);
-                    throw new KeyNotFoundException("Student not found.");
+                    throw new NotFoundException("Student not found.");
                 }
 
                 await _studentRepository.DeleteStudentAsync(id);
@@ -161,7 +163,7 @@ namespace CourseManagement.Application.Services
                 if (student == null)
                 {
                     _logger.LogWarning("Student with ID {StudentId} not found", id);
-                    throw new KeyNotFoundException("Student not found.");
+                    throw new NotFoundException("Student not found.");
                 }
 
                 var studentDTO = new StudentDTO
@@ -193,7 +195,7 @@ namespace CourseManagement.Application.Services
             var student = await _studentRepository.GetStudentByIdAsync(updateStudentDTO.Id);
 
             if (student == null)
-                throw new KeyNotFoundException("Student not found.");
+                throw new NotFoundException("Student not found.");
 
             student.FullName = updateStudentDTO.FullName;
             student.DateOfBirth = updateStudentDTO.DateOfBirth;

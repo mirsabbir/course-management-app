@@ -3,6 +3,7 @@ using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Exceptions;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Application.Services;
 using CourseManagement.Domain;
@@ -84,6 +85,10 @@ namespace CourseManagement.UnitTests.ApplicationTests
             var courseId = Guid.NewGuid();
 
             _mockCourseRepository
+                .Setup(repo => repo.GetByIdAsync(courseId))
+                .ReturnsAsync(new Course { Id = courseId, CreatedByName = string.Empty, Description = string.Empty, Name = string.Empty });
+
+            _mockCourseRepository
                 .Setup(repo => repo.DeleteAsync(courseId))
                 .Returns(Task.CompletedTask);
 
@@ -91,8 +96,27 @@ namespace CourseManagement.UnitTests.ApplicationTests
             await _courseService.DeleteCourseAsync(courseId);
 
             // Assert
+            _mockCourseRepository.Verify(repo => repo.GetByIdAsync(courseId), Times.Once);
             _mockCourseRepository.Verify(repo => repo.DeleteAsync(courseId), Times.Once);
         }
+
+        [Fact]
+        public async Task DeleteCourseAsync_ShouldThrowNotFoundException_WhenCourseDoesNotExist()
+        {
+            // Arrange
+            var courseId = Guid.NewGuid();
+
+            _mockCourseRepository
+                .Setup(repo => repo.GetByIdAsync(courseId))
+                .ReturnsAsync((Course)null); // Simulate course not found
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => _courseService.DeleteCourseAsync(courseId));
+
+            _mockCourseRepository.Verify(repo => repo.GetByIdAsync(courseId), Times.Once);
+            _mockCourseRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never);
+        }
+
 
         [Fact]
         public async Task EnrollStudentAsync_ShouldEnrollStudent()
@@ -104,11 +128,14 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 StudentId = Guid.NewGuid()
             };
 
-            var student = new Student { Id = courseEnrollmentDTO.StudentId };
+            var student = new Student { Id = courseEnrollmentDTO.StudentId, CreatedByName = string.Empty, Email = "a@a.com", FullName = "name" };
             var course = new Course
             {
                 Id = courseEnrollmentDTO.CourseId,
-                CourseStudents = new List<CourseStudent>()
+                CourseStudents = new List<CourseStudent>(),
+                CreatedByName = string.Empty,
+                Description = string.Empty,
+                Name = string.Empty
             };
 
             _mockStudentRepository
@@ -151,7 +178,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .ReturnsAsync((Course)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
+            await Assert.ThrowsAsync<NotFoundException>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
         }
 
         [Fact]
@@ -160,23 +187,13 @@ namespace CourseManagement.UnitTests.ApplicationTests
             // Arrange
             var courses = new List<Course>
             {
-                new Course { Id = Guid.NewGuid(), Name = "Math 101", CreatedById = Guid.NewGuid() },
-                new Course { Id = Guid.NewGuid(), Name = "Science 101", CreatedById = Guid.NewGuid() }
-            };
-
-            var users = new List<UserDTO>
-            {
-                new UserDTO { Id = courses[0].CreatedById, FullName = "John Doe" },
-                new UserDTO { Id = courses[1].CreatedById, FullName = "Jane Smith" }
+                new Course { Id = Guid.NewGuid(), Name = "Math 101", CreatedById = Guid.NewGuid(), CreatedByName = "John Doe", Description = string.Empty },
+                new Course {Id = Guid.NewGuid(), Name = "Science 101", CreatedById = Guid.NewGuid(), CreatedByName = "Jane Smith", Description = string.Empty}
             };
 
             _mockCourseRepository
                 .Setup(repo => repo.GetAllAsync())
                 .ReturnsAsync(courses);
-
-            _mockUserService
-                .Setup(service => service.GetAllUsersAsync())
-                .ReturnsAsync(users);
 
             // Act
             var result = await _courseService.GetAllCoursesAsync();
@@ -196,18 +213,14 @@ namespace CourseManagement.UnitTests.ApplicationTests
             {
                 Id = courseId,
                 Name = "Math 101",
-                CreatedById = Guid.NewGuid()
+                CreatedById = Guid.NewGuid(),
+                CreatedByName = "John Doe",
+                Description = string.Empty
             };
-
-            var user = new UserDTO { Id = course.CreatedById, FullName = "John Doe" };
 
             _mockCourseRepository
                 .Setup(repo => repo.GetByIdAsync(courseId))
                 .ReturnsAsync(course);
-
-            _mockUserService
-                .Setup(service => service.GetUserByIdAsync(course.CreatedById))
-                .ReturnsAsync(user);
 
             // Act
             var result = await _courseService.GetCourseByIdAsync(courseId);
@@ -215,7 +228,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(course.Name, result.Name);
-            Assert.Equal(user.FullName, result.CreatedBy);
+            Assert.Equal("John Doe", result.CreatedBy);
         }
 
         [Fact]
@@ -229,7 +242,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .ReturnsAsync((Course)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _courseService.GetCourseByIdAsync(courseId));
+            await Assert.ThrowsAsync<NotFoundException>(() => _courseService.GetCourseByIdAsync(courseId));
         }
 
         [Fact]
@@ -237,18 +250,12 @@ namespace CourseManagement.UnitTests.ApplicationTests
         {
             // Arrange
             var courseId = Guid.NewGuid();
-            var course = new Course { Id = courseId };
+            var course = new Course { Id = courseId, CreatedByName = string.Empty, Description = "description", Name = "New Course" };
 
             var classes = new List<Class>
             {
-                new Class { Id = Guid.NewGuid(), Name = "Class 1", CreatedById = Guid.NewGuid() },
-                new Class { Id = Guid.NewGuid(), Name = "Class 2", CreatedById = Guid.NewGuid() }
-            };
-
-            var users = new List<UserDTO>
-            {
-                new UserDTO { Id = classes[0].CreatedById, FullName = "John Doe" },
-                new UserDTO { Id = classes[1].CreatedById, FullName = "Jane Smith" }
+                new Class { Id = Guid.NewGuid(), Name = "Class 1", CreatedById = Guid.NewGuid(), CreatedByName = "John Doe", Description = string.Empty },
+                new Class {Id = Guid.NewGuid(), Name = "Class 2", CreatedById = Guid.NewGuid(), CreatedByName = "Jane Smith", Description = string.Empty}
             };
 
             _mockCourseRepository
@@ -258,10 +265,6 @@ namespace CourseManagement.UnitTests.ApplicationTests
             _mockClassRepository
                 .Setup(repo => repo.GetByCourseIdAsync(courseId))
                 .ReturnsAsync(classes);
-
-            _mockUserService
-                .Setup(service => service.GetAllUsersAsync())
-                .ReturnsAsync(users);
 
             // Act
             var result = await _courseService.GetClassesAsync(courseId);
@@ -282,9 +285,12 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 Id = courseId,
                 CourseStudents = new List<CourseStudent>
                 {
-                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "John Doe", Email = "john@example.com", DateOfBirth = new DateTime(2000, 1, 1) } },
-                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "Jane Smith", Email = "jane@example.com", DateOfBirth = new DateTime(1999, 5, 15) } }
-                }
+                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "John Doe", Email = "john@example.com", DateOfBirth = new DateTime(2000, 1, 1), CreatedByName = string.Empty }, AssignedByName = string.Empty },
+                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "Jane Smith", Email = "jane@example.com", DateOfBirth = new DateTime(1999, 5, 15), CreatedByName = string.Empty }, AssignedByName = string.Empty }
+                },
+                CreatedByName = string.Empty,
+                Description = string.Empty,
+                Name = "New Course"
             };
 
             _mockCourseRepository
@@ -316,18 +322,13 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 Id = updateCourseDTO.Id,
                 Name = "Math 101",
                 Description = "Introduction to Mathematics",
-                CreatedById = Guid.NewGuid()
+                CreatedById = Guid.NewGuid(),
+                CreatedByName = "John Doe"
             };
-
-            var user = new UserDTO { Id = course.CreatedById, FullName = "John Doe" };
 
             _mockCourseRepository
                 .Setup(repo => repo.GetByIdAsync(updateCourseDTO.Id))
                 .ReturnsAsync(course);
-
-            _mockUserService
-                .Setup(service => service.GetUserByIdAsync(course.CreatedById))
-                .ReturnsAsync(user);
 
             _mockCourseRepository
                 .Setup(repo => repo.UpdateAsync(course))
@@ -340,7 +341,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             Assert.NotNull(result);
             Assert.Equal(updateCourseDTO.Name, result.Name);
             Assert.Equal(updateCourseDTO.Description, result.Description);
-            Assert.Equal(user.FullName, result.CreatedBy);
+            Assert.Equal("John Doe", result.CreatedBy);
             _mockCourseRepository.Verify(repo => repo.UpdateAsync(course), Times.Once);
         }
 
@@ -349,7 +350,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             var claims = new List<Claim>
             {
                 new Claim("UserId", userId),
-                new Claim("UserName", userName)
+                new Claim("fullName", userName)
             };
 
             var identity = new ClaimsIdentity(claims, "TestAuth");

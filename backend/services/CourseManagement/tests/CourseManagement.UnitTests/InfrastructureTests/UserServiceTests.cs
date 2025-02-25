@@ -44,7 +44,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             var tokenResponse = new { access_token = token };
 
             _mockConfiguration
-                .Setup(config => config["AuthServer:Url"])
+                .Setup(config => config["AuthServer:TokenEndpoint"])
                 .Returns(authUrl);
 
             _mockConfiguration

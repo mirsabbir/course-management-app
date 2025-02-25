@@ -35,8 +35,8 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new ClassRepository(context);
-                var testClass1 = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
-                var testClass2 = new Class { Id = Guid.NewGuid(), Name = "Class 2", Description = "description" };
+                var testClass1 = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
+                var testClass2 = new Class { Id = Guid.NewGuid(), Name = "Class 2", Description = "description", CreatedByName = string.Empty };
                 await context.Classes.AddRangeAsync(testClass1, testClass2);
                 await context.SaveChangesAsync();
 
@@ -57,7 +57,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new ClassRepository(context);
-                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
+                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
                 await context.Classes.AddAsync(testClass);
                 await context.SaveChangesAsync();
 
@@ -93,7 +93,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new ClassRepository(context);
-                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
+                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
 
                 // Act
                 await repository.AddAsync(testClass);
@@ -112,7 +112,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new ClassRepository(context);
-                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
+                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
                 await context.Classes.AddAsync(testClass);
                 await context.SaveChangesAsync();
 
@@ -135,7 +135,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             using (var context = GetDbContext())
             {
                 var repository = new ClassRepository(context);
-                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
+                var testClass = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
                 await context.Classes.AddAsync(testClass);
                 await context.SaveChangesAsync();
 
@@ -156,10 +156,10 @@ namespace CourseManagement.UnitTests.InfrastructureTests
             {
                 var repository = new ClassRepository(context);
                 var courseId = Guid.NewGuid();
-                var testClass1 = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description" };
-                var testClass2 = new Class { Id = Guid.NewGuid(), Name = "Class 2", Description = "description" };
-                testClass1.ClassCourses = new List<ClassCourse> { new ClassCourse { CourseId = courseId } };
-                testClass2.ClassCourses = new List<ClassCourse> { new ClassCourse { CourseId = Guid.NewGuid() } };
+                var testClass1 = new Class { Id = Guid.NewGuid(), Name = "Class 1", Description = "description", CreatedByName = string.Empty };
+                var testClass2 = new Class { Id = Guid.NewGuid(), Name = "Class 2", Description = "description", CreatedByName = string.Empty };
+                testClass1.ClassCourses = new List<ClassCourse> { new ClassCourse { CourseId = courseId, AssignedByName = string.Empty } };
+                testClass2.ClassCourses = new List<ClassCourse> { new ClassCourse { CourseId = Guid.NewGuid(), AssignedByName = string.Empty } };
                 await context.Classes.AddRangeAsync(testClass1, testClass2);
                 await context.SaveChangesAsync();
 

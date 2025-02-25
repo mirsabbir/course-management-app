@@ -28,7 +28,7 @@ namespace CourseManagement.Infrastructure.Services
         {
             _logger.LogInformation("Entering GetAccessTokenAsync method to fetch access token.");
 
-            var authUrl = _configuration["AuthServer:Url"];
+            var authUrl = _configuration["AuthServer:TokenEndpoint"];
             var clientId = _configuration["AuthServer:ClientId"];
             var clientSecret = _configuration["AuthServer:ClientSecret"];
 
@@ -64,7 +64,6 @@ namespace CourseManagement.Infrastructure.Services
                 throw; // Propagate the error
             }
         }
-
 
         public async Task<string> CreateUserAsync(CreateUserDTO userDTO)
         {
@@ -106,7 +105,6 @@ namespace CourseManagement.Infrastructure.Services
             }
         }
 
-
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
         {
             _logger.LogInformation("Entering GetAllUsersAsync method to retrieve all users.");
@@ -143,7 +141,6 @@ namespace CourseManagement.Infrastructure.Services
                 throw; // Propagate the error
             }
         }
-
 
         public async Task<UserDTO> GetUserByIdAsync(Guid id)
         {
@@ -187,6 +184,5 @@ namespace CourseManagement.Infrastructure.Services
                 throw; // Propagate the error
             }
         }
-
     }
 }

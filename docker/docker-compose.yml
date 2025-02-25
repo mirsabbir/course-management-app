@@ -11,7 +11,7 @@ services:
     depends_on:
       - db  
     networks:
-      - test
+      - internal_network
 
   course-management-api:
     build:
@@ -24,9 +24,8 @@ services:
     depends_on:
       - db  
     networks:
-      - test
+      - internal_network
 
-  # Example for a database container (if required)
   db:
     build:
       context: ../database   # Point to the root of your backend folder
@@ -36,11 +35,8 @@ services:
     env_file:
       - ./.env  # Load environment variables from the .env file
     networks:
-      - test
-
-volumes:
-  db-data:
+      - internal_network
 
 networks:
-  test:
+  internal_network:
     driver: bridge

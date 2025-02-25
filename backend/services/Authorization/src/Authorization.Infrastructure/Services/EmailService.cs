@@ -7,6 +7,7 @@ using MimeKit;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Authorization.Infrastructure.Services
 {
@@ -14,17 +15,24 @@ namespace Authorization.Infrastructure.Services
     {
         private readonly ISmtpClient _smtpClient;
         private readonly ILogger<EmailService> _logger;
-        private readonly string _smtpServer = "smtp-relay.brevo.com";
-        private readonly int _smtpPort = 587; // Use 465 for SSL
-        private readonly string _smtpUsername = "8630e3001@smtp-brevo.com"; // Your Brevo SMTP username
-        private readonly string _smtpPassword = "aTRqMb0WwU4kB9yI"; // Your Brevo SMTP password
+        private readonly string _smtpServer;
+        private readonly int _smtpPort = 587;
+        private readonly string _smtpUsername;
+        private readonly string _smtpPassword;
 
         public EmailService(
             ISmtpClient smtpClient,
-            ILogger<EmailService> logger)
+            ILogger<EmailService> logger,
+            IConfiguration configuration)
         {
             _smtpClient = smtpClient;
             _logger = logger;
+            _smtpUsername = configuration["MailSmtpSettings:Username"]
+                ?? throw new ArgumentNullException(nameof(_smtpUsername));
+            _smtpPassword = configuration["MailSmtpSettings:Password"] 
+                ?? throw new ArgumentNullException(nameof(_smtpPassword));
+            _smtpServer = configuration["MailSmtpSettings:Server"] 
+                ?? throw new ArgumentNullException(nameof(_smtpServer));
         }
 
         public async Task SendEmailAsync(string email, string subject, string message)

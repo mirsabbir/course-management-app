@@ -9,10 +9,11 @@ namespace CourseManagement.Domain
     public class Course
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public required string Name { get; set; }
+        public required string Description { get; set; }
         public Guid CreatedById { get; set; }
         public DateTime CreatedAt { get; set; }
+        public required string CreatedByName { get; set; }
 
         // Navigation properties
         public virtual ICollection<ClassCourse> ClassCourses { get; set; } = new List<ClassCourse>();

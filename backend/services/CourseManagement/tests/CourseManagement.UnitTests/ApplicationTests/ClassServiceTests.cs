@@ -4,6 +4,7 @@ using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Exceptions;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Application.Services;
 using CourseManagement.Domain;
@@ -79,10 +80,14 @@ namespace CourseManagement.UnitTests.ApplicationTests
         }
 
         [Fact]
-        public async Task DeleteClassAsync_ShouldDeleteClass()
+        public async Task DeleteClassAsync_ShouldDeleteClass_WhenClassExists()
         {
             // Arrange
             var classId = Guid.NewGuid();
+
+            _mockClassRepository
+                .Setup(repo => repo.GetByIdAsync(classId))
+                .ReturnsAsync(new Class { Id = classId, CreatedByName = string.Empty, Description = string.Empty, Name = "Class" }); // Simulate that the class exists
 
             _mockClassRepository
                 .Setup(repo => repo.DeleteAsync(classId))
@@ -92,8 +97,27 @@ namespace CourseManagement.UnitTests.ApplicationTests
             await _classService.DeleteClassAsync(classId);
 
             // Assert
+            _mockClassRepository.Verify(repo => repo.GetByIdAsync(classId), Times.Once);
             _mockClassRepository.Verify(repo => repo.DeleteAsync(classId), Times.Once);
         }
+
+        [Fact]
+        public async Task DeleteClassAsync_ShouldThrowNotFoundException_WhenClassDoesNotExist()
+        {
+            // Arrange
+            var classId = Guid.NewGuid();
+
+            _mockClassRepository
+                .Setup(repo => repo.GetByIdAsync(classId))
+                .ReturnsAsync((Class)null); // Simulate that the class does not exist
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => _classService.DeleteClassAsync(classId));
+
+            _mockClassRepository.Verify(repo => repo.GetByIdAsync(classId), Times.Once);
+            _mockClassRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never); // Ensure delete is never called
+        }
+
 
         [Fact]
         public async Task EnrollStudentAsync_ShouldEnrollStudent()
@@ -105,11 +129,14 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 StudentId = Guid.NewGuid()
             };
 
-            var student = new Student { Id = classEnrollmentDTO.StudentId };
+            var student = new Student { Id = classEnrollmentDTO.StudentId, CreatedByName = "Test user", Email = "student@student.com", FullName = "Student" };
             var classEntity = new Class
             {
                 Id = classEnrollmentDTO.ClassId,
-                ClassStudents = new List<ClassStudent>()
+                ClassStudents = new List<ClassStudent>(),
+                CreatedByName = "test staff",
+                Description = "Description",
+                Name = "Math 104"
             };
 
             _mockStudentRepository
@@ -152,7 +179,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .ReturnsAsync((Class)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => _classService.EnrollStudentAsync(classEnrollmentDTO));
+            await Assert.ThrowsAsync<NotFoundException>(() => _classService.EnrollStudentAsync(classEnrollmentDTO));
         }
 
         [Fact]
@@ -161,23 +188,13 @@ namespace CourseManagement.UnitTests.ApplicationTests
             // Arrange
             var classes = new List<Class>
             {
-                new Class { Id = Guid.NewGuid(), Name = "Math 101", CreatedById = Guid.NewGuid() },
-                new Class { Id = Guid.NewGuid(), Name = "Science 101", CreatedById = Guid.NewGuid() }
-            };
-
-            var users = new List<UserDTO>
-            {
-                new UserDTO { Id = classes[0].CreatedById, FullName = "John Doe" },
-                new UserDTO { Id = classes[1].CreatedById, FullName = "Jane Smith" }
+                new Class { Id = Guid.NewGuid(), Name = "Math 101", CreatedById = Guid.NewGuid(), CreatedByName = "John Doe", Description = string.Empty },
+                new Class {Id = Guid.NewGuid(), Name = "Science 101", CreatedById = Guid.NewGuid(), CreatedByName = "Jane Smith", Description = string.Empty}
             };
 
             _mockClassRepository
                 .Setup(repo => repo.GetAllAsync())
                 .ReturnsAsync(classes);
-
-            _mockUserService
-                .Setup(service => service.GetAllUsersAsync())
-                .ReturnsAsync(users);
 
             // Act
             var result = await _classService.GetAllClassesAsync();
@@ -197,18 +214,15 @@ namespace CourseManagement.UnitTests.ApplicationTests
             {
                 Id = classId,
                 Name = "Math 101",
-                CreatedById = Guid.NewGuid()
+                CreatedById = Guid.NewGuid(),
+                CreatedByName = "John Doe",
+                Description = string.Empty,
             };
-
-            var user = new UserDTO { Id = classEntity.CreatedById, FullName = "John Doe" };
 
             _mockClassRepository
                 .Setup(repo => repo.GetByIdAsync(classId))
                 .ReturnsAsync(classEntity);
 
-            _mockUserService
-                .Setup(service => service.GetUserByIdAsync(classEntity.CreatedById))
-                .ReturnsAsync(user);
 
             // Act
             var result = await _classService.GetClassByIdAsync(classId);
@@ -216,7 +230,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(classEntity.Name, result.Name);
-            Assert.Equal(user.FullName, result.CreatedBy);
+            Assert.Equal("John Doe", result.CreatedBy);
         }
 
         [Fact]
@@ -230,7 +244,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .ReturnsAsync((Class)null);
 
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _classService.GetClassByIdAsync(classId));
+            await Assert.ThrowsAsync<NotFoundException>(() => _classService.GetClassByIdAsync(classId));
         }
 
         private void SetupHttpContext(string userId, string userName)

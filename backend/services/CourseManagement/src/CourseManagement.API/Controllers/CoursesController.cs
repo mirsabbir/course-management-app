@@ -1,4 +1,5 @@
-﻿using CourseManagement.Application.DTOs;
+﻿using Authorization.API;
+using CourseManagement.Application.DTOs;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagement.API.Controllers
 {
+    [AuthorizeRolesAndScopes(roles: [], scopes: ["course.manage"])]
     [Route("api/[controller]")]
     [ApiController]
     public class CoursesController : ControllerBase
@@ -37,7 +39,7 @@ namespace CourseManagement.API.Controllers
         public async Task<IActionResult> Create(CreateCourseDTO dto)
         {
             var course = await _courseService.CreateCourseAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = course.Id }, course);
+            return CreatedAtAction(nameof(GetById), new { courseId = course.Id }, course);
         }
 
         [HttpPut("{courseId}")]
@@ -57,17 +59,17 @@ namespace CourseManagement.API.Controllers
         [HttpGet("{courseId}/classes")]
         public async Task<IActionResult> GetClassesByCourseId(Guid courseId)
         {
-            var course = await _courseService.GetClassesAsync(courseId);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var classes = await _courseService.GetClassesAsync(courseId);
+            if (classes == null) return NotFound();
+            return Ok(classes);
         }
 
         [HttpGet("{courseId}/students")]
         public async Task<IActionResult> GetStudentsByCourseId(Guid courseId)
         {
-            var course = await _courseService.GetStudentsAsync(courseId);
-            if (course == null) return NotFound();
-            return Ok(course);
+            var students = await _courseService.GetStudentsAsync(courseId);
+            if (students == null) return NotFound();
+            return Ok(students);
         }
     }
 }
