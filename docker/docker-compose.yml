@@ -24,6 +24,18 @@ services:
       - db  
     networks:
       - internal_network
+  
+  course-management-ui:
+    build:
+      context: ../frontend/course-management-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" 
+    depends_on:
+      - course-management-api
+      - authorization-api
+    networks:
+      - internal_network
 
   db:
     build:
