@@ -40,7 +40,7 @@ namespace Authorization.API
             // Check roles
             if (_roles.Any() && !_roles.Any(role => user.IsInRole(role)))
             {
-                context.Result = new ForbidResult();
+                context.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace Authorization.API
 
                 if (!_scopes.All(scope => allScopes.Contains(scope)))
                 {
-                    context.Result = new ForbidResult();
+                    context.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
                     return;
                 }
             }

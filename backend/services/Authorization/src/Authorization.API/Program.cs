@@ -75,16 +75,17 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     // IdentityServer authority (the base URL of IdentityServer [iss])
-    options.Authority = builder.Configuration["HostUrl"];
+    options.Authority = builder.Configuration["AuthServer:Url"];
     options.RequireHttpsMetadata = false;
 
     // Audience of the token (must match the API resource name in IdentityServer [aud])
-    options.Audience = builder.Configuration["JwtAudience"];
+    options.Audience = builder.Configuration["AuthServer:JwtAudience"];
 
     // Token validation parameters
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
+        ValidIssuers = [ "http://localhost:5161", "http://authorization-api:8080" ],
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,

@@ -27,7 +27,7 @@ function Courses() {
   // Handle course form submission (mocking API call here)
   const handleAddCourse = async () => {
     try {
-      const response = await axios.post("/api/courses", {
+      const response = await axios.post("http://localhost:5181/api/courses", {
         name: courseName,
         description: courseDescription,
       });
@@ -67,7 +67,12 @@ function Courses() {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("/api/courses");
+      const token = localStorage.getItem("access_token"); // Retrieve the token
+      const response = await axios.get("http://localhost:5181/api/courses", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add Bearer token
+        },
+      });
       setCourses(response.data);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -75,6 +80,7 @@ function Courses() {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchCourses(); // Fetch courses when component mounts

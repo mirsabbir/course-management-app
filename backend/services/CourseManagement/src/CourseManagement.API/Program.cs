@@ -74,6 +74,7 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
+        ValidIssuers = new[] { "http://localhost:5161", "http://authorization-api:8080" },
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
@@ -109,9 +110,22 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  // Allow all origins
+              .AllowAnyHeader()  // Allow all headers
+              .AllowAnyMethod(); // Allow all HTTP methods
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseCors("AllowAll"); // Apply the CORS policy
 
 if (app.Environment.IsDevelopment())
 {
