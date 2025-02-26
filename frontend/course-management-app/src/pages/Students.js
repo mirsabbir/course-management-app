@@ -20,16 +20,18 @@ import {
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import axios from "axios";
+import { format } from "date-fns"; // For formatting dates
 
-function Courses() {
+function Students() {
   const [open, setOpen] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [courseName, setCourseName] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
-  const [courses, setCourses] = useState([]);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [courseToDelete, setCourseToDelete] = useState(null);
-  const [editingCourse, setEditingCourse] = useState(null);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [editingStudent, setEditingStudent] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // New state for success messages
 
@@ -50,90 +52,92 @@ function Courses() {
     }
   };
 
-  const fetchCourses = useCallback(async () => {
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get("http://localhost:5181/api/courses", {
+      const response = await axios.get("http://localhost:5181/api/students", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCourses(response.data);
+      setStudents(response.data);
     } catch (error) {
       handleApiError(error);
-      console.error("Error fetching courses:", error);
+      console.error("Error fetching students:", error);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCourses();
-  }, [fetchCourses]);
+    fetchStudents();
+  }, [fetchStudents]);
 
-  const handleAddOrUpdateCourse = async () => {
+  const handleAddOrUpdateStudent = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (editingCourse) {
+      if (editingStudent) {
         await axios.put(
-          `http://localhost:5181/api/courses/${editingCourse.id}`,
-          { id: editingCourse.id, name: courseName, description: courseDescription },
+          `http://localhost:5181/api/students/${editingStudent.id}`,
+          { id: editingStudent.id, fullName, email, dateOfBirth },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course updated successfully!"); // Success message for update
+        setSuccessMessage("Student updated successfully!"); // Success message for update
       } else {
         await axios.post(
-          "http://localhost:5181/api/courses",
-          { name: courseName, description: courseDescription },
+          "http://localhost:5181/api/students",
+          { fullName, email, dateOfBirth },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course added successfully!"); // Success message for add
+        setSuccessMessage("Student added successfully!"); // Success message for add
       }
-      fetchCourses();
+      fetchStudents();
       handleClose();
     } catch (error) {
       handleApiError(error);
-      console.error("Error saving course:", error);
+      console.error("Error saving student:", error);
     }
   };
 
-  const handleDeleteCourse = async () => {
+  const handleDeleteStudent = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`http://localhost:5181/api/courses/${courseToDelete}`, {
+      await axios.delete(`http://localhost:5181/api/students/${studentToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setSuccessMessage("Course deleted successfully!"); // Success message for delete
-      fetchCourses();
+      setSuccessMessage("Student deleted successfully!"); // Success message for delete
+      fetchStudents();
       handleCloseDeleteDialog();
     } catch (error) {
       handleApiError(error);
-      console.error("Error deleting course:", error);
+      console.error("Error deleting student:", error);
     }
   };
 
-  const handleEditCourse = (course) => {
-    setEditingCourse(course);
-    setCourseName(course.name);
-    setCourseDescription(course.description);
+  const handleEditStudent = (student) => {
+    setEditingStudent(student);
+    setFullName(student.fullName);
+    setEmail(student.email);
+    setDateOfBirth(format(new Date(student.dateOfBirth), "yyyy-MM-dd")); // Format date for input
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setEditingCourse(null);
-    setCourseName("");
-    setCourseDescription("");
+    setEditingStudent(null);
+    setFullName("");
+    setEmail("");
+    setDateOfBirth("");
   };
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
-    setCourseToDelete(null);
+    setStudentToDelete(null);
   };
 
   return (
-    <Container style={{ marginTop: "30px" }}>
+    <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Courses
+        Manage Students
       </Typography>
       <Button
         variant="contained"
@@ -141,21 +145,21 @@ function Courses() {
         onClick={() => setOpen(true)}
         style={{ marginBottom: "10px" }}
       >
-        Add Course
+        Add Student
       </Button>
 
       {loading ? (
         <CircularProgress />
       ) : (
         <List>
-          {courses.map((course) => (
-            <ListItem key={course.id} secondaryAction={
+          {students.map((student) => (
+            <ListItem key={student.id} secondaryAction={
               <>
-                <IconButton edge="end" onClick={() => handleEditCourse(course)}>
+                <IconButton edge="end" onClick={() => handleEditStudent(student)}>
                   <Edit color="primary" />
                 </IconButton>
                 <IconButton edge="end" onClick={() => {
-                  setCourseToDelete(course.id);
+                  setStudentToDelete(student.id);
                   setOpenDeleteDialog(true);
                 }}>
                   <Delete color="error" />
@@ -163,8 +167,17 @@ function Courses() {
               </>
             }>
               <ListItemText
-                primary={course.name}
-                secondary={course.description}
+                primary={student.fullName}
+                secondary={
+                  <>
+                    <Typography variant="body2" color="text.secondary">
+                      Email: {student.email}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Date of Birth: {format(new Date(student.dateOfBirth), "dd/MM/yyyy")}
+                    </Typography>
+                  </>
+                }
               />
             </ListItem>
           ))}
@@ -184,45 +197,52 @@ function Courses() {
           borderRadius: "10px"
         }}>
           <Typography variant="h6" gutterBottom>
-            {editingCourse ? "Edit Course" : "Add New Course"}
+            {editingStudent ? "Edit Student" : "Add New Student"}
           </Typography>
           <TextField
-            label="Course Name"
+            label="Full Name"
             fullWidth
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
           <TextField
-            label="Course Description"
+            label="Email"
             fullWidth
-            multiline
-            rows={4}
-            value={courseDescription}
-            onChange={(e) => setCourseDescription(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ marginBottom: "10px" }}
+          />
+          <TextField
+            label="Date of Birth"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={dateOfBirth}
+            onChange={(e) => setDateOfBirth(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
           <Button
             variant="contained"
             color="primary"
             fullWidth
-            onClick={handleAddOrUpdateCourse}
+            onClick={handleAddOrUpdateStudent}
           >
-            {editingCourse ? "Update Course" : "Add Course"}
+            {editingStudent ? "Update Student" : "Add Student"}
           </Button>
         </Box>
       </Modal>
 
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Delete Course</DialogTitle>
+        <DialogTitle>Delete Student</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this course?</Typography>
+          <Typography>Are you sure you want to delete this student?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteCourse} color="error">
+          <Button onClick={handleDeleteStudent} color="error">
             Delete
           </Button>
         </DialogActions>
@@ -255,4 +275,4 @@ function Courses() {
   );
 }
 
-export default Courses;
+export default Students;

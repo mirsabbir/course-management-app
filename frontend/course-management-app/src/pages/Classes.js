@@ -21,15 +21,15 @@ import {
 import { Delete, Edit } from "@mui/icons-material";
 import axios from "axios";
 
-function Courses() {
+function Classes() {
   const [open, setOpen] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [courseName, setCourseName] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
-  const [courses, setCourses] = useState([]);
+  const [className, setClassName] = useState("");
+  const [classDescription, setClassDescription] = useState("");
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [courseToDelete, setCourseToDelete] = useState(null);
-  const [editingCourse, setEditingCourse] = useState(null);
+  const [classToDelete, setClassToDelete] = useState(null);
+  const [editingClass, setEditingClass] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); // New state for success messages
 
@@ -50,90 +50,90 @@ function Courses() {
     }
   };
 
-  const fetchCourses = useCallback(async () => {
+  const fetchClasses = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get("http://localhost:5181/api/courses", {
+      const response = await axios.get("http://localhost:5181/api/classes", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setCourses(response.data);
+      setClasses(response.data);
     } catch (error) {
       handleApiError(error);
-      console.error("Error fetching courses:", error);
+      console.error("Error fetching classes:", error);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCourses();
-  }, [fetchCourses]);
+    fetchClasses();
+  }, [fetchClasses]);
 
-  const handleAddOrUpdateCourse = async () => {
+  const handleAddOrUpdateClass = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      if (editingCourse) {
+      if (editingClass) {
         await axios.put(
-          `http://localhost:5181/api/courses/${editingCourse.id}`,
-          { id: editingCourse.id, name: courseName, description: courseDescription },
+          `http://localhost:5181/api/classes/${editingClass.id}`,
+          { id: editingClass.id, name: className, description: classDescription },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course updated successfully!"); // Success message for update
+        setSuccessMessage("Class updated successfully!"); // Success message for update
       } else {
         await axios.post(
-          "http://localhost:5181/api/courses",
-          { name: courseName, description: courseDescription },
+          "http://localhost:5181/api/classes",
+          { name: className, description: classDescription },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course added successfully!"); // Success message for add
+        setSuccessMessage("Class added successfully!"); // Success message for add
       }
-      fetchCourses();
+      fetchClasses();
       handleClose();
     } catch (error) {
       handleApiError(error);
-      console.error("Error saving course:", error);
+      console.error("Error saving class:", error);
     }
   };
 
-  const handleDeleteCourse = async () => {
+  const handleDeleteClass = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`http://localhost:5181/api/courses/${courseToDelete}`, {
+      await axios.delete(`http://localhost:5181/api/classes/${classToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setSuccessMessage("Course deleted successfully!"); // Success message for delete
-      fetchCourses();
+      setSuccessMessage("Class deleted successfully!"); // Success message for delete
+      fetchClasses();
       handleCloseDeleteDialog();
     } catch (error) {
       handleApiError(error);
-      console.error("Error deleting course:", error);
+      console.error("Error deleting class:", error);
     }
   };
 
-  const handleEditCourse = (course) => {
-    setEditingCourse(course);
-    setCourseName(course.name);
-    setCourseDescription(course.description);
+  const handleEditClass = (cls) => {
+    setEditingClass(cls);
+    setClassName(cls.name);
+    setClassDescription(cls.description);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-    setEditingCourse(null);
-    setCourseName("");
-    setCourseDescription("");
+    setEditingClass(null);
+    setClassName("");
+    setClassDescription("");
   };
 
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
-    setCourseToDelete(null);
+    setClassToDelete(null);
   };
 
   return (
-    <Container style={{ marginTop: "30px" }}>
+    <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Courses
+        Manage Classes
       </Typography>
       <Button
         variant="contained"
@@ -141,21 +141,21 @@ function Courses() {
         onClick={() => setOpen(true)}
         style={{ marginBottom: "10px" }}
       >
-        Add Course
+        Add Class
       </Button>
 
       {loading ? (
         <CircularProgress />
       ) : (
         <List>
-          {courses.map((course) => (
-            <ListItem key={course.id} secondaryAction={
+          {classes.map((cls) => (
+            <ListItem key={cls.id} secondaryAction={
               <>
-                <IconButton edge="end" onClick={() => handleEditCourse(course)}>
+                <IconButton edge="end" onClick={() => handleEditClass(cls)}>
                   <Edit color="primary" />
                 </IconButton>
                 <IconButton edge="end" onClick={() => {
-                  setCourseToDelete(course.id);
+                  setClassToDelete(cls.id);
                   setOpenDeleteDialog(true);
                 }}>
                   <Delete color="error" />
@@ -163,8 +163,8 @@ function Courses() {
               </>
             }>
               <ListItemText
-                primary={course.name}
-                secondary={course.description}
+                primary={cls.name}
+                secondary={cls.description}
               />
             </ListItem>
           ))}
@@ -184,45 +184,45 @@ function Courses() {
           borderRadius: "10px"
         }}>
           <Typography variant="h6" gutterBottom>
-            {editingCourse ? "Edit Course" : "Add New Course"}
+            {editingClass ? "Edit Class" : "Add New Class"}
           </Typography>
           <TextField
-            label="Course Name"
+            label="Class Name"
             fullWidth
-            value={courseName}
-            onChange={(e) => setCourseName(e.target.value)}
+            value={className}
+            onChange={(e) => setClassName(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
           <TextField
-            label="Course Description"
+            label="Class Description"
             fullWidth
             multiline
             rows={4}
-            value={courseDescription}
-            onChange={(e) => setCourseDescription(e.target.value)}
+            value={classDescription}
+            onChange={(e) => setClassDescription(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
           <Button
             variant="contained"
             color="primary"
             fullWidth
-            onClick={handleAddOrUpdateCourse}
+            onClick={handleAddOrUpdateClass}
           >
-            {editingCourse ? "Update Course" : "Add Course"}
+            {editingClass ? "Update Class" : "Add Class"}
           </Button>
         </Box>
       </Modal>
 
       <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Delete Course</DialogTitle>
+        <DialogTitle>Delete Class</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this course?</Typography>
+          <Typography>Are you sure you want to delete this class?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteCourse} color="error">
+          <Button onClick={handleDeleteClass} color="error">
             Delete
           </Button>
         </DialogActions>
@@ -255,4 +255,4 @@ function Courses() {
   );
 }
 
-export default Courses;
+export default Classes;

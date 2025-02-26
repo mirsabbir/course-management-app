@@ -60,7 +60,7 @@ namespace CourseManagement.Application.Services
                 Id = Guid.NewGuid(),
                 FullName = createStudentDTO.FullName,
                 Email = createStudentDTO.Email,
-                DateOfBirth = createStudentDTO.DateOfBirth,
+                DateOfBirth = createStudentDTO.DateOfBirth.ToUniversalTime(),
                 UserId = Guid.Parse(userId), // Convert string userId to Guid
                 CreatedByName = string.Empty
             };
@@ -198,14 +198,14 @@ namespace CourseManagement.Application.Services
                 throw new NotFoundException("Student not found.");
 
             student.FullName = updateStudentDTO.FullName;
-            student.DateOfBirth = updateStudentDTO.DateOfBirth;
+            student.DateOfBirth = updateStudentDTO.DateOfBirth.ToUniversalTime();
 
             await _studentRepository.UpdateStudentAsync(student);
 
             return new StudentDTO
             {
                 Id = student.Id,
-                DateOfBirth = student.DateOfBirth,
+                DateOfBirth = student.DateOfBirth.ToUniversalTime(),
                 FullName = student.FullName,
                 Email = student.Email
             };

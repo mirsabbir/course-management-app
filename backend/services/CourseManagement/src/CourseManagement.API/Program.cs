@@ -74,8 +74,9 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuers = new[] { "http://localhost:5161", "http://authorization-api:8080" },
+        ValidIssuers = [ "http://localhost:5161", "http://authorization-api:8080" ],
         ValidateAudience = true,
+        ValidAudiences = [ "http://localhost:5161/resources", "http://authorization-api:8080/resources" ],
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ClockSkew = TimeSpan.Zero
