@@ -127,16 +127,26 @@ function Navbar() {
           <List>
             {menuItems.map((item) => (
               <ListItem
-                button
                 key={item.text}
-                selected={location.pathname === item.path}
                 onClick={() => {
                   navigate(item.path);
                   setDrawerOpen(false); // Close drawer after navigation
                 }}
+                sx={{
+                  cursor: "pointer",
+                  backgroundColor: location.pathname === item.path ? "rgba(0, 0, 0, 0.1)" : "transparent",
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.2)" },
+                }}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
+                <ListItemIcon sx={{ color: location.pathname === item.path ? "primary.main" : "inherit" }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  sx={{
+                    color: location.pathname === item.path ? "primary.main" : "inherit",
+                  }}
+                />
               </ListItem>
             ))}
           </List>

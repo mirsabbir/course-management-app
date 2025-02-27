@@ -88,6 +88,14 @@ function Students() {
 
   const handleAddOrUpdateStudent = async () => {
     try {
+      if (!fullName) {
+        setErrorMessage("Full Name is required.");
+        return; // Stop the function if validation fails
+      }
+      if (!email) {
+        setErrorMessage("Email is required.");
+        return; // Stop the function if validation fails
+      }
       const token = localStorage.getItem("access_token");
       if (editingStudent) {
         await axios.put(
@@ -243,6 +251,7 @@ function Students() {
             label="Full Name"
             fullWidth
             value={fullName}
+            required="true"
             onChange={(e) => setFullName(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
@@ -250,6 +259,8 @@ function Students() {
             label="Email"
             fullWidth
             value={email}
+            required="true"
+            disabled={editingStudent}
             onChange={(e) => setEmail(e.target.value)}
             style={{ marginBottom: "10px" }}
           />

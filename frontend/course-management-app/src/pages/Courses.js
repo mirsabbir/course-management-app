@@ -238,6 +238,7 @@ function Courses() {
             label="Course Name"
             fullWidth
             value={courseName}
+            required="true"
             onChange={(e) => setCourseName(e.target.value)}
             style={{ marginBottom: "10px" }}
           />
