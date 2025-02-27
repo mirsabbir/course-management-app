@@ -2,6 +2,7 @@
 using CourseManagement.API.Models;
 using CourseManagement.Application.DTOs;
 using CourseManagement.Application.DTOs.Courses;
+using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain.Constants;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -87,6 +88,31 @@ namespace CourseManagement.API.Controllers
             var students = await _courseService.GetStudentsAsync(courseId);
             if (students == null) return NotFound();
             return Ok(students);
+        }
+
+        [HttpPost("{courseId}/students")]
+        public async Task<IActionResult> EnrollToCourse(Guid courseId, CourseEnrollmentDTO courseEnrollmentDTO)
+        {
+            if (courseId != courseEnrollmentDTO.CourseId)
+            {
+                throw new InvalidOperationException("CourseId in request body doesn't match with CourseId in URL.");
+            }
+
+            await _courseService.EnrollStudentAsync(courseEnrollmentDTO);
+            return Ok();
+        }
+
+        [HttpDelete("{courseId}/students/{studentId}")]
+        public async Task<IActionResult> UnenrollFromCourse(Guid courseId, Guid studentId)
+        {
+            var enrollmentDTO = new CourseEnrollmentDTO
+            {
+                CourseId = courseId,
+                StudentId = studentId,
+            };
+
+            await _courseService.UnenrollStudentAsync(enrollmentDTO);
+            return Ok();
         }
     }
 }

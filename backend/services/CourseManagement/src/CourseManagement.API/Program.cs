@@ -21,6 +21,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ICourseStudentRepository, CourseStudentRepository>();
+builder.Services.AddScoped<IClassStudentRepository, ClassStudentRepository>();
 
 // add services
 builder.Services.AddScoped<IClassService, ClassService>();

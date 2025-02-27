@@ -72,5 +72,19 @@ namespace CourseManagement.Infrastructure.Repositories
         {
             return await _context.Students.AnyAsync(s => s.Email.ToLower() == email.ToLower());
         }
+
+        public async Task<IEnumerable<Student>> SearchStudentsAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return new List<Student>();
+            }
+
+            searchTerm = searchTerm.ToLower(); // Normalize input
+
+            return await _context.Students
+                .Where(s => s.FullName.ToLower().Contains(searchTerm) || s.Email.ToLower().Contains(searchTerm))
+                .ToListAsync();
+        }
     }
 }

@@ -65,5 +65,12 @@ namespace CourseManagement.API.Controllers
             await _studentService.DeleteAsync(studentId);
             return Ok();
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchStudents([FromQuery] string query)
+        {
+            var students = await _studentService.SearchStudentsAsync(query);
+            return Ok(students);
+        }
     }
 }

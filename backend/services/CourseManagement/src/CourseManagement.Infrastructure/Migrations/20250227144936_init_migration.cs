@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CourseManagement.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class test_migration : Migration
+    public partial class init_migration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,7 +23,8 @@ namespace CourseManagement.Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CreatedById = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedByName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,7 +40,8 @@ namespace CourseManagement.Infrastructure.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CreatedById = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedByName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,7 +57,10 @@ namespace CourseManagement.Infrastructure.Migrations
                     FullName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedByName = table.Column<string>(type: "text", nullable: false),
+                    CreatedById = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,26 +68,27 @@ namespace CourseManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClassCourse",
+                name: "ClassCourses",
                 schema: "CourseManagement",
                 columns: table => new
                 {
                     ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     CourseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssignedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassCourse", x => new { x.ClassId, x.CourseId });
+                    table.PrimaryKey("PK_ClassCourses", x => new { x.ClassId, x.CourseId });
                     table.ForeignKey(
-                        name: "FK_ClassCourse_Classes_ClassId",
+                        name: "FK_ClassCourses_Classes_ClassId",
                         column: x => x.ClassId,
                         principalSchema: "CourseManagement",
                         principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClassCourse_Courses_CourseId",
+                        name: "FK_ClassCourses_Courses_CourseId",
                         column: x => x.CourseId,
                         principalSchema: "CourseManagement",
                         principalTable: "Courses",
@@ -91,26 +97,27 @@ namespace CourseManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClassStudent",
+                name: "ClassEnrollments",
                 schema: "CourseManagement",
                 columns: table => new
                 {
                     ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     StudentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssignedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClassStudent", x => new { x.ClassId, x.StudentId });
+                    table.PrimaryKey("PK_ClassEnrollments", x => new { x.ClassId, x.StudentId });
                     table.ForeignKey(
-                        name: "FK_ClassStudent_Classes_ClassId",
+                        name: "FK_ClassEnrollments_Classes_ClassId",
                         column: x => x.ClassId,
                         principalSchema: "CourseManagement",
                         principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClassStudent_Students_StudentId",
+                        name: "FK_ClassEnrollments_Students_StudentId",
                         column: x => x.StudentId,
                         principalSchema: "CourseManagement",
                         principalTable: "Students",
@@ -119,26 +126,27 @@ namespace CourseManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CourseStudent",
+                name: "CourseEnrollments",
                 schema: "CourseManagement",
                 columns: table => new
                 {
                     CourseId = table.Column<Guid>(type: "uuid", nullable: false),
                     StudentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    AssignedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CourseStudent", x => new { x.CourseId, x.StudentId });
+                    table.PrimaryKey("PK_CourseEnrollments", x => new { x.CourseId, x.StudentId });
                     table.ForeignKey(
-                        name: "FK_CourseStudent_Courses_CourseId",
+                        name: "FK_CourseEnrollments_Courses_CourseId",
                         column: x => x.CourseId,
                         principalSchema: "CourseManagement",
                         principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CourseStudent_Students_StudentId",
+                        name: "FK_CourseEnrollments_Students_StudentId",
                         column: x => x.StudentId,
                         principalSchema: "CourseManagement",
                         principalTable: "Students",
@@ -147,21 +155,21 @@ namespace CourseManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassCourse_CourseId",
+                name: "IX_ClassCourses_CourseId",
                 schema: "CourseManagement",
-                table: "ClassCourse",
+                table: "ClassCourses",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClassStudent_StudentId",
+                name: "IX_ClassEnrollments_StudentId",
                 schema: "CourseManagement",
-                table: "ClassStudent",
+                table: "ClassEnrollments",
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CourseStudent_StudentId",
+                name: "IX_CourseEnrollments_StudentId",
                 schema: "CourseManagement",
-                table: "CourseStudent",
+                table: "CourseEnrollments",
                 column: "StudentId");
         }
 
@@ -169,15 +177,15 @@ namespace CourseManagement.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ClassCourse",
+                name: "ClassCourses",
                 schema: "CourseManagement");
 
             migrationBuilder.DropTable(
-                name: "ClassStudent",
+                name: "ClassEnrollments",
                 schema: "CourseManagement");
 
             migrationBuilder.DropTable(
-                name: "CourseStudent",
+                name: "CourseEnrollments",
                 schema: "CourseManagement");
 
             migrationBuilder.DropTable(

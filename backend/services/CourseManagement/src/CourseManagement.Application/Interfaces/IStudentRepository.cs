@@ -17,5 +17,6 @@ namespace CourseManagement.Application.Interfaces
         Task UpdateStudentAsync(Student student);
         Task DeleteStudentAsync(Guid studentId);
         Task<bool> ExistsByEmailAsync(string email);
+        Task<IEnumerable<Student>> SearchStudentsAsync(string searchTerm);
     }
 }

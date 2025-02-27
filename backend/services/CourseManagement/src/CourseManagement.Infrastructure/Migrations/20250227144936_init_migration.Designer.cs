@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CourseManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250225073446_init_migration")]
+    [Migration("20250227144936_init_migration")]
     partial class init_migration
     {
         /// <inheritdoc />
@@ -76,7 +76,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("ClassCourse", "CourseManagement");
+                    b.ToTable("ClassCourses", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.ClassStudent", b =>
@@ -98,7 +98,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("ClassStudent", "CourseManagement");
+                    b.ToTable("ClassEnrollments", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.Course", b =>
@@ -151,7 +151,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("CourseStudent", "CourseManagement");
+                    b.ToTable("CourseEnrollments", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.Student", b =>

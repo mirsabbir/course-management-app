@@ -16,6 +16,7 @@ namespace CourseManagement.Application.Services
         IStudentRepository studentRepository,
         IHttpContextAccessor httpContextAccessor,
         IUserService userService,
+        IClassStudentRepository classStudentRepository,
         ILogger<ClassService> logger) : IClassService
     {
         private readonly IClassRepository _classRepository = classRepository;
@@ -23,6 +24,7 @@ namespace CourseManagement.Application.Services
         private readonly IStudentRepository _studentRepository = studentRepository;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IUserService _userService = userService;
+        private readonly IClassStudentRepository _classStudentRepository = classStudentRepository;
         private readonly ILogger<ClassService> _logger = logger;
 
         public async Task<ClassDTO> CreateClassAsync(CreateClassDTO createClassDTO)
@@ -119,6 +121,7 @@ namespace CourseManagement.Application.Services
 
             try
             {
+                // Check if student exists
                 var student = await _studentRepository.GetStudentByIdAsync(classEnrollmentDTO.StudentId);
                 if (student == null)
                 {
@@ -126,14 +129,17 @@ namespace CourseManagement.Application.Services
                     throw new NotFoundException($"Student with ID {classEnrollmentDTO.StudentId} was not found.");
                 }
 
-                var classEntity = await _classRepository.GetByIdAsync(classEnrollmentDTO.ClassId);
-                if (classEntity == null)
+                // Check if class exists
+                var @class = await _classRepository.GetByIdAsync(classEnrollmentDTO.ClassId);
+                if (@class == null)
                 {
                     _logger.LogWarning("Class with ID {ClassId} not found", classEnrollmentDTO.ClassId);
                     throw new NotFoundException($"Class with ID {classEnrollmentDTO.ClassId} was not found.");
                 }
 
-                if (classEntity.ClassStudents.Any(cs => cs.StudentId == classEnrollmentDTO.StudentId))
+                // Check if student is already enrolled
+                var isAlreadyEnrolled = await _classStudentRepository.ExistsAsync(classEnrollmentDTO.ClassId, classEnrollmentDTO.StudentId);
+                if (isAlreadyEnrolled)
                 {
                     _logger.LogWarning(
                         "Student with ID {StudentId} is already enrolled in class with ID {ClassId}",
@@ -143,6 +149,7 @@ namespace CourseManagement.Application.Services
                     throw new InvalidOperationException("Student is already enrolled in this class.");
                 }
 
+                // Create enrollment entry
                 var classStudent = new ClassStudent
                 {
                     ClassId = classEnrollmentDTO.ClassId,
@@ -151,8 +158,7 @@ namespace CourseManagement.Application.Services
                     AssignedByName = GetCurrentUserName()
                 };
 
-                classEntity.ClassStudents.Add(classStudent);
-                await _classRepository.UpdateAsync(classEntity);
+                await _classStudentRepository.AddAsync(classStudent);
 
                 _logger.LogInformation(
                     "Successfully enrolled student with ID {StudentId} into class with ID {ClassId}",
@@ -171,6 +177,7 @@ namespace CourseManagement.Application.Services
                 throw; // Re-throw the exception after logging
             }
         }
+
 
         public async Task<(IEnumerable<ClassDTO> Classes, int TotalCount)> GetAllClassesAsync(int pageNumber = 1, int pageSize = 10)
         {
@@ -259,22 +266,21 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id)
+        public async Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid classId)
         {
-            _logger.LogInformation("Fetching students for class with ID {ClassId}", id);
+            _logger.LogInformation("Fetching students for class with ID {ClassId}", classId);
 
             try
             {
-                var classEntity = await _classRepository.GetByIdAsync(id);
+                var classEntity = await _classRepository.GetByIdAsync(classId);
 
                 if (classEntity == null)
                 {
-                    _logger.LogWarning("Class with ID {ClassId} not found", id);
+                    _logger.LogWarning("Class with ID {ClassId} not found", classId);
                     throw new NotFoundException("Class not found.");
                 }
 
-                var classStudents = classEntity.ClassStudents;
-                var enrolledStudents = classStudents.Select(cs => cs.Student);
+                var enrolledStudents = await _classStudentRepository.GetStudentsByClassIdAsync(classId);
 
                 var result = enrolledStudents.Select(s => new StudentDTO
                 {
@@ -284,15 +290,60 @@ namespace CourseManagement.Application.Services
                     FullName = s.FullName
                 }).ToList();
 
-                _logger.LogInformation("Successfully fetched {StudentCount} students for class with ID {ClassId}", result.Count, id);
+                _logger.LogInformation("Successfully fetched {StudentCount} students for class with ID {ClassId}", result.Count, classId);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to fetch students for class with ID {ClassId}", id);
+                _logger.LogError(ex, "Failed to fetch students for class with ID {ClassId}", classId);
                 throw; // Re-throw the exception after logging
             }
         }
+
+        public async Task UnenrollStudentAsync(ClassEnrollmentDTO classEnrollmentDTO)
+        {
+            _logger.LogInformation("Unenrolling student {StudentId} from class {ClassId}",
+                classEnrollmentDTO.StudentId, classEnrollmentDTO.ClassId);
+
+            try
+            {
+                var student = await _studentRepository.GetStudentByIdAsync(classEnrollmentDTO.StudentId);
+                var classEntity = await _classRepository.GetByIdAsync(classEnrollmentDTO.ClassId);
+
+                if (student == null || classEntity == null)
+                {
+                    _logger.LogWarning("Invalid student ({StudentId}) or class ({ClassId})",
+                        classEnrollmentDTO.StudentId, classEnrollmentDTO.ClassId);
+                    throw new NotFoundException("Invalid student or class.");
+                }
+
+                // Check if the student is enrolled in the class
+                bool isEnrolled = await _classStudentRepository.ExistsAsync(classEntity.Id, student.Id);
+                if (!isEnrolled)
+                {
+                    _logger.LogWarning("Student {StudentId} is not enrolled in class {ClassId}",
+                        classEnrollmentDTO.StudentId, classEnrollmentDTO.ClassId);
+                    throw new InvalidOperationException("Student is not enrolled in this class.");
+                }
+
+                // Unenroll the student by removing the ClassStudent entry
+                await _classStudentRepository.RemoveAsync(classEntity.Id, student.Id);
+
+                _logger.LogInformation("Successfully unenrolled student {StudentId} from class {ClassId}",
+                    classEnrollmentDTO.StudentId, classEnrollmentDTO.ClassId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to unenroll student with ID {StudentId} from class with ID {ClassId}",
+                    classEnrollmentDTO.StudentId,
+                    classEnrollmentDTO.ClassId
+                );
+                throw; // Re-throw the exception after logging
+            }
+        }
+
 
         public async Task<ClassDTO> UpdateClassAsync(UpdateClassDTO updateClassDTO)
         {

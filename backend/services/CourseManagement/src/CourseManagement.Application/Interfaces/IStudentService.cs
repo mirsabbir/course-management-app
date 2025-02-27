@@ -15,5 +15,6 @@ namespace CourseManagement.Application.Interfaces
         Task<StudentDTO> CreateAsync(CreateStudentDTO createStudentDTO);
         Task<StudentDTO> UpdateAsync(UpdateStudentDTO updateStudentDTO);
         Task DeleteAsync(Guid id);
+        Task<IEnumerable<StudentDTO>> SearchStudentsAsync(string searchTerm);
     }
 }

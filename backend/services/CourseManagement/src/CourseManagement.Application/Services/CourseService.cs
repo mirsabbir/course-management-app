@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ namespace CourseManagement.Application.Services
         IStudentRepository studentRepository,
         IUserService userService,
         IHttpContextAccessor httpContextAccessor,
+        ICourseStudentRepository courseStudentRepository,
         ILogger<CourseService> logger) : ICourseService
     {
         private readonly ICourseRepository _courseRepository = courseRepository;
@@ -27,6 +29,7 @@ namespace CourseManagement.Application.Services
         private readonly IStudentRepository _studentRepository = studentRepository;
         private readonly IUserService _userService = userService;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly ICourseStudentRepository _courseStudentRepository = courseStudentRepository;
         private readonly ILogger<CourseService> _logger = logger;
 
         public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO createCourseDTO)
@@ -120,11 +123,8 @@ namespace CourseManagement.Application.Services
 
         public async Task EnrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO)
         {
-            _logger.LogInformation(
-                "Enrolling student with ID {StudentId} into course with ID {CourseId}",
-                courseEnrollmentDTO.StudentId,
-                courseEnrollmentDTO.CourseId
-            );
+            _logger.LogInformation("Enrolling student {StudentId} into course {CourseId}",
+                courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
 
             try
             {
@@ -133,40 +133,32 @@ namespace CourseManagement.Application.Services
 
                 if (student == null || course == null)
                 {
-                    _logger.LogWarning(
-                        "Invalid student or course. Student ID: {StudentId}, Course ID: {CourseId}",
-                        courseEnrollmentDTO.StudentId,
-                        courseEnrollmentDTO.CourseId
-                    );
+                    _logger.LogWarning("Invalid student ({StudentId}) or course ({CourseId})",
+                        courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
                     throw new NotFoundException("Invalid student or course.");
                 }
 
-                if (course.CourseStudents.Any(cs => cs.StudentId == courseEnrollmentDTO.StudentId))
+                // Check if already enrolled
+                bool alreadyEnrolled = await _courseStudentRepository.ExistsAsync(course.Id, student.Id);
+                if (alreadyEnrolled)
                 {
-                    _logger.LogWarning(
-                        "Student with ID {StudentId} is already enrolled in course with ID {CourseId}",
-                        courseEnrollmentDTO.StudentId,
-                        courseEnrollmentDTO.CourseId
-                    );
+                    _logger.LogWarning("Student {StudentId} already enrolled in course {CourseId}",
+                        courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
                     throw new InvalidOperationException("Student is already enrolled in this course.");
                 }
 
                 var courseStudent = new CourseStudent
                 {
-                    CourseId = courseEnrollmentDTO.CourseId,
-                    StudentId = courseEnrollmentDTO.StudentId,
+                    CourseId = course.Id,
+                    StudentId = student.Id,
                     AssignedById = GetCurrentUserId(),
                     AssignedByName = GetCurrentUserName()
                 };
 
-                course.CourseStudents.Add(courseStudent);
-                await _courseRepository.UpdateAsync(course);
+                await _courseStudentRepository.AddAsync(courseStudent);
 
-                _logger.LogInformation(
-                    "Successfully enrolled student with ID {StudentId} into course with ID {CourseId}",
-                    courseEnrollmentDTO.StudentId,
-                    courseEnrollmentDTO.CourseId
-                );
+                _logger.LogInformation("Successfully enrolled student {StudentId} in course {CourseId}",
+                    courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
             }
             catch (Exception ex)
             {
@@ -179,6 +171,7 @@ namespace CourseManagement.Application.Services
                 throw; // Re-throw the exception after logging
             }
         }
+
 
         public async Task<(IEnumerable<CourseDTO> Courses, int TotalCount)> GetAllCoursesAsync(int pageNumber = 1, int pageSize = 10)
         {
@@ -281,22 +274,21 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id)
+        public async Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid courseId)
         {
-            _logger.LogInformation("Fetching students for course with ID {CourseId}", id);
+            _logger.LogInformation("Fetching students for course with ID {CourseId}", courseId);
 
             try
             {
-                var course = await _courseRepository.GetByIdAsync(id);
+                var course = await _courseRepository.GetByIdAsync(courseId);
 
                 if (course == null)
                 {
-                    _logger.LogWarning("Course with ID {CourseId} not found", id);
+                    _logger.LogWarning("Course with ID {CourseId} not found", courseId);
                     throw new NotFoundException("Course not found.");
                 }
 
-                var courseStudents = course.CourseStudents;
-                var enrolledStudents = courseStudents.Select(cs => cs.Student);
+                var enrolledStudents = await _courseStudentRepository.GetStudentsByCourseIdAsync(courseId);
 
                 var result = enrolledStudents.Select(s => new StudentDTO
                 {
@@ -306,12 +298,12 @@ namespace CourseManagement.Application.Services
                     Email = s.Email
                 }).ToList();
 
-                _logger.LogInformation("Successfully fetched {StudentCount} students for course with ID {CourseId}", result.Count, id);
+                _logger.LogInformation("Successfully fetched {StudentCount} students for course with ID {CourseId}", result.Count, courseId);
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to fetch students for course with ID {CourseId}", id);
+                _logger.LogError(ex, "Failed to fetch students for course with ID {CourseId}", courseId);
                 throw; // Re-throw the exception after logging
             }
         }
@@ -347,5 +339,50 @@ namespace CourseManagement.Application.Services
         {
             return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value ?? string.Empty;
         }
+
+        public async Task UnenrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO)
+        {
+            _logger.LogInformation("Unenrolling student {StudentId} from course {CourseId}",
+                courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
+
+            try
+            {
+                var student = await _studentRepository.GetStudentByIdAsync(courseEnrollmentDTO.StudentId);
+                var course = await _courseRepository.GetByIdAsync(courseEnrollmentDTO.CourseId);
+
+                if (student == null || course == null)
+                {
+                    _logger.LogWarning("Invalid student ({StudentId}) or course ({CourseId})",
+                        courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
+                    throw new NotFoundException("Invalid student or course.");
+                }
+
+                // Check if the student is enrolled in the course
+                bool isEnrolled = await _courseStudentRepository.ExistsAsync(course.Id, student.Id);
+                if (!isEnrolled)
+                {
+                    _logger.LogWarning("Student {StudentId} is not enrolled in course {CourseId}",
+                        courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
+                    throw new InvalidOperationException("Student is not enrolled in this course.");
+                }
+
+                // Unenroll the student by removing the CourseStudent entry
+                await _courseStudentRepository.RemoveAsync(course.Id, student.Id);
+
+                _logger.LogInformation("Successfully unenrolled student {StudentId} from course {CourseId}",
+                    courseEnrollmentDTO.StudentId, courseEnrollmentDTO.CourseId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to unenroll student with ID {StudentId} from course with ID {CourseId}",
+                    courseEnrollmentDTO.StudentId,
+                    courseEnrollmentDTO.CourseId
+                );
+                throw; // Re-throw the exception after logging
+            }
+        }
+
     }
 }

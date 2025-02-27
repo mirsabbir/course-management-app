@@ -14,7 +14,7 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import { Menu as MenuIcon, Home, Book, Class, People, Close as CloseIcon } from "@mui/icons-material";
+import { Menu as MenuIcon, Home, Book, Class, People, Close as CloseIcon, School } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 import CryptoJS from "crypto-js";
 
@@ -74,7 +74,7 @@ function Navbar() {
   // Sidebar menu items
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/" },
-    { text: "Courses", icon: <Book />, path: "/courses" },
+    { text: "Courses", icon: <School />, path: "/courses" },
     { text: "Classes", icon: <Class />, path: "/classes" },
     { text: "Students", icon: <People />, path: "/students" },
   ];

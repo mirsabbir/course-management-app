@@ -23,7 +23,8 @@ import {
   Alert,
   Pagination,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, People } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Courses() {
@@ -41,6 +42,7 @@ function Courses() {
   const [pageSize, setPageSize] = useState(5); // Number of items per page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
   const [totalCount, setTotalCount] = useState(0); // Total number of items
+  const navigate = useNavigate();
 
   const handleApiError = (error) => {
     if (error.response) {
@@ -181,6 +183,7 @@ function Courses() {
                 <TableCell><strong>Description</strong></TableCell>
                 <TableCell><strong>Created At</strong></TableCell>
                 <TableCell><strong>Created By</strong></TableCell>
+                <TableCell><strong>Manage Students</strong></TableCell>
                 <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>
@@ -191,6 +194,14 @@ function Courses() {
                   <TableCell>{course.description}</TableCell>
                   <TableCell>{formatCreatedAt(course.createdAt)}</TableCell>
                   <TableCell>{course.createdBy}</TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => 
+                                navigate(`/courses/${course.id}/students`, {
+                                  state: { courseName: course.name },
+                                })}>
+                      <People color="primary"></People>
+                    </IconButton>
+                  </TableCell>
                   <TableCell>
                     <IconButton edge="end" onClick={() => handleEditCourse(course)}>
                       <Edit color="primary" />

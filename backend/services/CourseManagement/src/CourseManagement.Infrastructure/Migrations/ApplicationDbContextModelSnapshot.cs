@@ -73,7 +73,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("ClassCourse", "CourseManagement");
+                    b.ToTable("ClassCourses", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.ClassStudent", b =>
@@ -95,7 +95,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("ClassStudent", "CourseManagement");
+                    b.ToTable("ClassEnrollments", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.Course", b =>
@@ -148,7 +148,7 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("CourseStudent", "CourseManagement");
+                    b.ToTable("CourseEnrollments", "CourseManagement");
                 });
 
             modelBuilder.Entity("CourseManagement.Domain.Student", b =>

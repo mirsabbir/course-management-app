@@ -21,5 +21,6 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<ClassDTO>> GetClassesAsync(Guid id);
         Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id);
         Task EnrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
+        Task UnenrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
     }
 }

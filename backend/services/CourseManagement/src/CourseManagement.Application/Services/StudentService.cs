@@ -219,5 +219,19 @@ namespace CourseManagement.Application.Services
                 Email = student.Email
             };
         }
+
+        public async Task<IEnumerable<StudentDTO>> SearchStudentsAsync(string searchTerm)
+        {
+            _logger.LogInformation("Searching students with term: {SearchTerm}", searchTerm);
+
+            var students = await _studentRepository.SearchStudentsAsync(searchTerm);
+
+            return students.Select(s => new StudentDTO
+            {
+                Id = s.Id,
+                FullName = s.FullName,
+                Email = s.Email,
+            }).ToList();
+        }
     }
 }

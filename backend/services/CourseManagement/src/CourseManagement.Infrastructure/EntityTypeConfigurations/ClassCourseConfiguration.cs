@@ -13,6 +13,8 @@ namespace CourseManagement.Infrastructure.EntityTypeConfigurations
     {
         public void Configure(EntityTypeBuilder<ClassCourse> builder)
         {
+            builder.ToTable("ClassCourses");
+
             builder.HasKey(cc => new { cc.ClassId, cc.CourseId });
 
             builder.HasOne(cc => cc.Class)
