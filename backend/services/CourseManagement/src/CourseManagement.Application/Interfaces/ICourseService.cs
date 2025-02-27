@@ -13,7 +13,7 @@ namespace CourseManagement.Application.Interfaces
 {
     public interface ICourseService
     {
-        Task<IEnumerable<CourseDTO>> GetAllCoursesAsync();
+        Task<(IEnumerable<CourseDTO> Courses, int TotalCount)> GetAllCoursesAsync(int pageNumber = 1, int pageSize = 10);
         Task<CourseDTO> GetCourseByIdAsync(Guid id);
         Task<CourseDTO> CreateCourseAsync(CreateCourseDTO createCourseDTO);
         Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO updateCourseDTO);

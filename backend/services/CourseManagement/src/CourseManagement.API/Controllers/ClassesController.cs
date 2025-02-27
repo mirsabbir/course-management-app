@@ -1,4 +1,5 @@
 ﻿using Authorization.API;
+using CourseManagement.API.Models;
 using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain.Constants;
@@ -14,10 +15,19 @@ namespace CourseManagement.API.Controllers
 
         [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<PagedResponse<ClassDTO>>> GetClasses([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var classes = await _classService.GetAllClassesAsync();
-            return Ok(classes);
+            var (classes, totalCount) = await _classService.GetAllClassesAsync(pageNumber, pageSize);
+
+            var response = new PagedResponse<ClassDTO>
+            {
+                Data = classes,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return Ok(response); // Return the paginated response as an HTTP OK response
         }
 
         [HttpGet("{classId}")]

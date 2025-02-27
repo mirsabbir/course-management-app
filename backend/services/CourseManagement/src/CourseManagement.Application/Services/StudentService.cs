@@ -126,13 +126,14 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetAllAsync()
+        public async Task<(IEnumerable<StudentDTO> Students, int TotalCount)> GetAllAsync(int pageNumber = 1, int pageSize = 10)
         {
             _logger.LogInformation("Fetching all students");
 
             try
             {
-                var students = await _studentRepository.GetAllStudentsAsync();
+                var totalCount = await _studentRepository.CountAsync(); // Get the total number of students
+                var students = await _studentRepository.GetPagedAsync(pageNumber, pageSize); // Get paginated students
 
                 var result = students.Select(s => new StudentDTO
                 {
@@ -143,7 +144,7 @@ namespace CourseManagement.Application.Services
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {StudentCount} students", result.Count);
-                return result;
+                return (result, totalCount); // Return both the student data and total count
             }
             catch (Exception ex)
             {

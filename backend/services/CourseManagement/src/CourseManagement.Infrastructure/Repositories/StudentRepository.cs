@@ -23,6 +23,22 @@ namespace CourseManagement.Infrastructure.Repositories
             return await _context.Students.ToListAsync();
         }
 
+        // Get paged students based on pageNumber and pageSize
+        public async Task<IEnumerable<Student>> GetPagedAsync(int pageNumber, int pageSize)
+        {
+            return await _context.Students
+                .OrderByDescending(s => s.CreatedAt) // You can adjust the ordering based on requirements
+                .Skip((pageNumber - 1) * pageSize) // Skip based on page number
+                .Take(pageSize) // Take only the number of students specified by pageSize
+                .ToListAsync(); // Execute the query and return the result
+        }
+
+        // Get the total count of students for pagination metadata
+        public async Task<int> CountAsync()
+        {
+            return await _context.Students.CountAsync(); // Count the total number of students
+        }
+
         public async Task<Student?> GetStudentByIdAsync(Guid studentId)
         {
             return await _context.Students

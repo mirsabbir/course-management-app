@@ -192,16 +192,20 @@ namespace CourseManagement.UnitTests.ApplicationTests
             };
 
             _mockCourseRepository
-                .Setup(repo => repo.GetAllAsync())
+                .Setup(repo => repo.CountAsync())
+                .ReturnsAsync(2);
+
+            _mockCourseRepository
+                .Setup(repo => repo.GetPagedAsync(1, 10))
                 .ReturnsAsync(courses);
 
             // Act
             var result = await _courseService.GetAllCoursesAsync();
 
             // Assert
-            Assert.Equal(2, result.Count());
-            Assert.Contains(result, c => c.Name == "Math 101" && c.CreatedBy == "John Doe");
-            Assert.Contains(result, c => c.Name == "Science 101" && c.CreatedBy == "Jane Smith");
+            Assert.Equal(2, result.TotalCount);
+            Assert.Contains(result.Courses, c => c.Name == "Math 101" && c.CreatedBy == "John Doe");
+            Assert.Contains(result.Courses, c => c.Name == "Science 101" && c.CreatedBy == "Jane Smith");
         }
 
         [Fact]

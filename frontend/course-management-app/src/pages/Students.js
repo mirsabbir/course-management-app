@@ -11,16 +11,18 @@ import {
   DialogContent,
   DialogTitle,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
   IconButton,
   Snackbar,
   Alert,
+  Pagination,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import axios from "axios";
-import { format } from "date-fns"; // For formatting dates
 
 function Students() {
   const [open, setOpen] = useState(false);
@@ -28,12 +30,16 @@ function Students() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [editingStudent, setEditingStudent] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // New state for success messages
+  const [successMessage, setSuccessMessage] = useState("");
+  const [pageNumber, setPageNumber] = useState(1); // Current page number
+  const [pageSize, setPageSize] = useState(5); // Number of items per page
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [totalCount, setTotalCount] = useState(0); // Total number of items
 
   const handleApiError = (error) => {
     if (error.response) {
@@ -58,15 +64,21 @@ function Students() {
       const token = localStorage.getItem("access_token");
       const response = await axios.get("http://localhost:5181/api/students", {
         headers: { Authorization: `Bearer ${token}` },
+        params: { pageNumber, pageSize }, // Add pagination query params
       });
-      setStudents(response.data);
+      console.log("API Response:", response.data); // Log the API response
+      setStudents(response.data.data || []); // Set students from the `data` key
+      setPageNumber(response.data.pageNumber); // Update current page number
+      setPageSize(response.data.pageSize); // Update page size
+      setTotalCount(response.data.totalCount); // Update total count
+      setTotalPages(response.data.totalPages); // Update total pages
     } catch (error) {
       handleApiError(error);
       console.error("Error fetching students:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageNumber, pageSize]);
 
   useEffect(() => {
     fetchStudents();
@@ -81,14 +93,14 @@ function Students() {
           { id: editingStudent.id, fullName, email, dateOfBirth },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Student updated successfully!"); // Success message for update
+        setSuccessMessage("Student updated successfully!");
       } else {
         await axios.post(
           "http://localhost:5181/api/students",
           { fullName, email, dateOfBirth },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Student added successfully!"); // Success message for add
+        setSuccessMessage("Student added successfully!");
       }
       fetchStudents();
       handleClose();
@@ -104,7 +116,7 @@ function Students() {
       await axios.delete(`http://localhost:5181/api/students/${studentToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setSuccessMessage("Student deleted successfully!"); // Success message for delete
+      setSuccessMessage("Student deleted successfully!");
       fetchStudents();
       handleCloseDeleteDialog();
     } catch (error) {
@@ -117,7 +129,7 @@ function Students() {
     setEditingStudent(student);
     setFullName(student.fullName);
     setEmail(student.email);
-    setDateOfBirth(format(new Date(student.dateOfBirth), "yyyy-MM-dd")); // Format date for input
+    setDateOfBirth(student.dateOfBirth);
     setOpen(true);
   };
 
@@ -132,6 +144,10 @@ function Students() {
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
     setStudentToDelete(null);
+  };
+
+  const handlePageChange = (event, newPage) => {
+    setPageNumber(newPage); // Update page number when pagination is clicked
   };
 
   return (
@@ -151,37 +167,52 @@ function Students() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <List>
-          {students.map((student) => (
-            <ListItem key={student.id} secondaryAction={
-              <>
-                <IconButton edge="end" onClick={() => handleEditStudent(student)}>
-                  <Edit color="primary" />
-                </IconButton>
-                <IconButton edge="end" onClick={() => {
-                  setStudentToDelete(student.id);
-                  setOpenDeleteDialog(true);
-                }}>
-                  <Delete color="error" />
-                </IconButton>
-              </>
-            }>
-              <ListItemText
-                primary={student.fullName}
-                secondary={
-                  <>
-                    <Typography variant="body2" color="text.secondary">
-                      Email: {student.email}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Date of Birth: {format(new Date(student.dateOfBirth), "dd/MM/yyyy")}
-                    </Typography>
-                  </>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
+        <>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><strong>Full Name</strong></TableCell>
+                <TableCell><strong>Email</strong></TableCell>
+                <TableCell><strong>Date of Birth</strong></TableCell>
+                <TableCell><strong>Created At</strong></TableCell>
+                <TableCell><strong>Created By</strong></TableCell>
+                <TableCell><strong>Actions</strong></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {students.map((student) => (
+                <TableRow key={student.id}>
+                  <TableCell>{student.fullName}</TableCell>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{student.dateOfBirth}</TableCell>
+                  <TableCell>{student.createdAt}</TableCell>
+                  <TableCell>{student.createdBy}</TableCell>
+                  <TableCell>
+                    <IconButton edge="end" onClick={() => handleEditStudent(student)}>
+                      <Edit color="primary" />
+                    </IconButton>
+                    <IconButton edge="end" onClick={() => {
+                      setStudentToDelete(student.id);
+                      setOpenDeleteDialog(true);
+                    }}>
+                      <Delete color="error" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {/* Pagination Controls */}
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={totalPages} // Total number of pages
+              page={pageNumber} // Current page number
+              onChange={handlePageChange} // Handle page change
+              color="primary"
+            />
+          </Box>
+        </>
       )}
 
       <Modal open={open} onClose={handleClose}>

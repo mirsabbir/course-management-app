@@ -11,12 +11,15 @@ import {
   DialogContent,
   DialogTitle,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
   IconButton,
   Snackbar,
   Alert,
+  Pagination,
 } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import axios from "axios";
@@ -26,12 +29,16 @@ function Courses() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [courseName, setCourseName] = useState("");
   const [courseDescription, setCourseDescription] = useState("");
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [courseToDelete, setCourseToDelete] = useState(null);
   const [editingCourse, setEditingCourse] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // New state for success messages
+  const [successMessage, setSuccessMessage] = useState("");
+  const [pageNumber, setPageNumber] = useState(1); // Current page number
+  const [pageSize, setPageSize] = useState(5); // Number of items per page
+  const [totalPages, setTotalPages] = useState(1); // Total number of pages
+  const [totalCount, setTotalCount] = useState(0); // Total number of items
 
   const handleApiError = (error) => {
     if (error.response) {
@@ -56,15 +63,21 @@ function Courses() {
       const token = localStorage.getItem("access_token");
       const response = await axios.get("http://localhost:5181/api/courses", {
         headers: { Authorization: `Bearer ${token}` },
+        params: { pageNumber, pageSize }, // Add pagination query params
       });
-      setCourses(response.data);
+      console.log("API Response:", response.data); // Log the API response
+      setCourses(response.data.data || []); // Set courses from the `data` key
+      setPageNumber(response.data.pageNumber); // Update current page number
+      setPageSize(response.data.pageSize); // Update page size
+      setTotalCount(response.data.totalCount); // Update total count
+      setTotalPages(response.data.totalPages); // Update total pages
     } catch (error) {
       handleApiError(error);
       console.error("Error fetching courses:", error);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pageNumber, pageSize]);
 
   useEffect(() => {
     fetchCourses();
@@ -79,14 +92,14 @@ function Courses() {
           { id: editingCourse.id, name: courseName, description: courseDescription },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course updated successfully!"); // Success message for update
+        setSuccessMessage("Course updated successfully!");
       } else {
         await axios.post(
           "http://localhost:5181/api/courses",
           { name: courseName, description: courseDescription },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setSuccessMessage("Course added successfully!"); // Success message for add
+        setSuccessMessage("Course added successfully!");
       }
       fetchCourses();
       handleClose();
@@ -102,7 +115,7 @@ function Courses() {
       await axios.delete(`http://localhost:5181/api/courses/${courseToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setSuccessMessage("Course deleted successfully!"); // Success message for delete
+      setSuccessMessage("Course deleted successfully!");
       fetchCourses();
       handleCloseDeleteDialog();
     } catch (error) {
@@ -130,8 +143,12 @@ function Courses() {
     setCourseToDelete(null);
   };
 
+  const handlePageChange = (event, newPage) => {
+    setPageNumber(newPage); // Update page number when pagination is clicked
+  };
+
   return (
-    <Container style={{ marginTop: "30px" }}>
+    <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
         Manage Courses
       </Typography>
@@ -147,28 +164,50 @@ function Courses() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <List>
-          {courses.map((course) => (
-            <ListItem key={course.id} secondaryAction={
-              <>
-                <IconButton edge="end" onClick={() => handleEditCourse(course)}>
-                  <Edit color="primary" />
-                </IconButton>
-                <IconButton edge="end" onClick={() => {
-                  setCourseToDelete(course.id);
-                  setOpenDeleteDialog(true);
-                }}>
-                  <Delete color="error" />
-                </IconButton>
-              </>
-            }>
-              <ListItemText
-                primary={course.name}
-                secondary={course.description}
-              />
-            </ListItem>
-          ))}
-        </List>
+        <>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><strong>Name</strong></TableCell>
+                <TableCell><strong>Description</strong></TableCell>
+                <TableCell><strong>Created At</strong></TableCell>
+                <TableCell><strong>Created By</strong></TableCell>
+                <TableCell><strong>Actions</strong></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {courses.map((course) => (
+                <TableRow key={course.id}>
+                  <TableCell>{course.name}</TableCell>
+                  <TableCell>{course.description}</TableCell>
+                  <TableCell>{course.createdAt}</TableCell>
+                  <TableCell>{course.createdBy}</TableCell>
+                  <TableCell>
+                    <IconButton edge="end" onClick={() => handleEditCourse(course)}>
+                      <Edit color="primary" />
+                    </IconButton>
+                    <IconButton edge="end" onClick={() => {
+                      setCourseToDelete(course.id);
+                      setOpenDeleteDialog(true);
+                    }}>
+                      <Delete color="error" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {/* Pagination Controls */}
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={totalPages} // Total number of pages
+              page={pageNumber} // Current page number
+              onChange={handlePageChange} // Handle page change
+              color="primary"
+            />
+          </Box>
+        </>
       )}
 
       <Modal open={open} onClose={handleClose}>

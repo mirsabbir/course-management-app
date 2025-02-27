@@ -10,7 +10,7 @@ namespace CourseManagement.Application.Interfaces
 {
     public interface IStudentService
     {
-        Task<IEnumerable<StudentDTO>> GetAllAsync();
+        Task<(IEnumerable<StudentDTO> Students, int TotalCount)> GetAllAsync(int pageNumber = 1, int pageSize = 10);
         Task<StudentDTO> GetByIdAsync(Guid id);
         Task<StudentDTO> CreateAsync(CreateStudentDTO createStudentDTO);
         Task<StudentDTO> UpdateAsync(UpdateStudentDTO updateStudentDTO);

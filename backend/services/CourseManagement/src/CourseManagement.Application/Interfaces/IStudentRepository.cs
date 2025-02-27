@@ -10,6 +10,8 @@ namespace CourseManagement.Application.Interfaces
     public interface IStudentRepository
     {
         Task<IEnumerable<Student>> GetAllStudentsAsync();
+        Task<IEnumerable<Student>> GetPagedAsync(int pageNumber, int pageSize);
+        Task<int> CountAsync();
         Task<Student> GetStudentByIdAsync(Guid studentId);
         Task AddStudentAsync(Student student);
         Task UpdateStudentAsync(Student student);

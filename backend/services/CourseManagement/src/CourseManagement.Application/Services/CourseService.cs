@@ -172,13 +172,14 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<CourseDTO>> GetAllCoursesAsync()
+        public async Task<(IEnumerable<CourseDTO> Courses, int TotalCount)> GetAllCoursesAsync(int pageNumber = 1, int pageSize = 10)
         {
-            _logger.LogInformation("Fetching all courses");
+            _logger.LogInformation("Fetching courses - Page: {PageNumber}, Size: {PageSize}", pageNumber, pageSize);
 
             try
             {
-                var courses = await _courseRepository.GetAllAsync();
+                var totalCourses = await _courseRepository.CountAsync(); // Get total count
+                var courses = await _courseRepository.GetPagedAsync(pageNumber, pageSize); // Implement paged query
 
                 var result = courses.Select(c => new CourseDTO
                 {
@@ -190,12 +191,12 @@ namespace CourseManagement.Application.Services
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {CourseCount} courses", result.Count);
-                return result;
+                return (result, totalCourses);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to fetch all courses");
-                throw; // Re-throw the exception after logging
+                _logger.LogError(ex, "Failed to fetch courses for page {PageNumber}", pageNumber);
+                throw;
             }
         }
 

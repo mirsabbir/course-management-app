@@ -7,7 +7,7 @@ namespace CourseManagement.Application.Interfaces
 {
     public interface IClassService
     {
-        Task<IEnumerable<ClassDTO>> GetAllClassesAsync();
+        Task<(IEnumerable<ClassDTO> Classes, int TotalCount)> GetAllClassesAsync(int pageNumber = 1, int pageSize = 10);
         Task<ClassDTO> GetClassByIdAsync(Guid id);
         Task<ClassDTO> CreateClassAsync(CreateClassDTO createClassDTO);
         Task<ClassDTO> UpdateClassAsync(UpdateClassDTO updateClassDTO);

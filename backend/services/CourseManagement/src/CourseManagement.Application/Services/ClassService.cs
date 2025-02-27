@@ -78,7 +78,6 @@ namespace CourseManagement.Application.Services
             return classDTO;
         }
 
-
         public async Task DeleteClassAsync(Guid id)
         {
             _logger.LogInformation("Deleting class with ID {ClassId}", id);
@@ -101,7 +100,6 @@ namespace CourseManagement.Application.Services
                 throw; // Re-throw the exception after logging
             }
         }
-
 
         public async Task EnrollStudentAsync(ClassEnrollmentDTO classEnrollmentDTO)
         {
@@ -166,32 +164,21 @@ namespace CourseManagement.Application.Services
             }
         }
 
-
-        public async Task<IEnumerable<ClassDTO>> GetAllClassesAsync()
+        public async Task<(IEnumerable<ClassDTO> Classes, int TotalCount)> GetAllClassesAsync(int pageNumber = 1, int pageSize = 10)
         {
-            _logger.LogInformation("Fetching all classes");
+            var totalCount = await _classRepository.CountAsync(); // Get total count of classes
+            var classes = await _classRepository.GetPagedAsync(pageNumber, pageSize); // Get paginated classes
 
-            try
+            var classDTOs = classes.Select(c => new ClassDTO
             {
-                var classes = await _classRepository.GetAllAsync();
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                CreatedAt = c.CreatedAt,
+                CreatedBy = c.CreatedByName, // Assuming you have a CreatedByName property in Class entity
+            }).ToList();
 
-                var result = classes.Select(c => new ClassDTO
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    CreatedAt = c.CreatedAt,
-                    Description = c.Description,
-                    CreatedBy = c.CreatedByName,
-                }).ToList();
-
-                _logger.LogInformation("Successfully fetched {ClassCount} classes", result.Count);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to fetch all classes");
-                throw; // Re-throw the exception after logging
-            }
+            return (classDTOs, totalCount); // Return both paged data and the total count
         }
 
         public async Task<ClassDTO> GetClassByIdAsync(Guid id)

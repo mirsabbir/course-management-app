@@ -1,4 +1,5 @@
 ﻿using Authorization.API;
+using CourseManagement.API.Models;
 using CourseManagement.Application.DTOs;
 using CourseManagement.Application.DTOs.Students;
 using CourseManagement.Application.Interfaces;
@@ -21,10 +22,19 @@ namespace CourseManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var students = await _studentService.GetAllAsync();
-            return Ok(students);
+            var (students, totalCount) = await _studentService.GetAllAsync(pageNumber, pageSize);
+
+            var response = new PagedResponse<StudentDTO>
+            {
+                Data = students,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return Ok(response); // Return the paginated student data
         }
 
         [HttpGet("{studentId}")]
