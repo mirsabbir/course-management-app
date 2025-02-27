@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Box } from "@mui/material";
 import HomePage from "./pages/HomePage";
 import Callback from "./pages/Callback";
 import ProtectedRoute from "./components/ProtectedRoute";

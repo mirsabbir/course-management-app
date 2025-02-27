@@ -1,11 +1,26 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  CssBaseline,
+  Box,
+} from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Home, Book, Class, People } from "@mui/icons-material"; // Icons for menu options
 import CryptoJS from "crypto-js";
 
 function Navbar() {
   const [userName, setUserName] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation(); // Get current route location
 
   // Generate a random string for the code verifier
   const generateRandomString = (length) => {
@@ -58,29 +73,67 @@ function Navbar() {
     navigate("/");
   };
 
+  // Sidebar menu items
+  const menuItems = [
+    { text: "Home", icon: <Home />, path: "/" },
+    { text: "Courses", icon: <Book />, path: "/courses" },
+    { text: "Classes", icon: <Class />, path: "/classes" },
+    { text: "Students", icon: <People />, path: "/students" },
+  ];
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
-          University Course Management
-        </Typography>
-        {userName ? (
-          <>
-            <Typography variant="body1" style={{ marginRight: "20px" }}>
-              Welcome, {userName}
-            </Typography>
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
+    <>
+      <CssBaseline /> {/* Normalize CSS */}
+      <AppBar position="sticky" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            University Course Management
+          </Typography>
+          {userName ? (
+            <>
+              <Typography variant="body1" style={{ marginRight: "20px" }}>
+                Welcome, {userName}
+              </Typography>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button color="inherit" onClick={handleLogin}>
+              Login
             </Button>
-          </>
-        ) : (
-          <Button color="inherit" onClick={handleLogin}>
-            Login
-          </Button>
-        )}
-      </Toolbar>
-    </AppBar>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: 240,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: "border-box" },
+        }}
+      >
+        <Toolbar /> {/* Add space for the AppBar */}
+        <Box sx={{ overflow: "auto" }}>
+          <List>
+            {menuItems.map((item) => (
+              <ListItem
+                button
+                key={item.text}
+                selected={location.pathname === item.path} // Highlight active menu item
+                onClick={() => navigate(item.path)}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItem>
+            ))}
+          </List>
+          <Divider />
+        </Box>
+      </Drawer>
+    </>
   );
 }
 

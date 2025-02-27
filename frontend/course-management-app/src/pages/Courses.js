@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
+  TableContainer,
+  Paper,
   Container,
   Typography,
   Button,
@@ -147,6 +149,13 @@ function Courses() {
     setPageNumber(newPage); // Update page number when pagination is clicked
   };
 
+  // Function to format createdAt in local time zone
+  const formatCreatedAt = (createdAt) => {
+    if (!createdAt) return "N/A"; // Handle undefined or null values
+    const date = new Date(createdAt);
+    return date.toLocaleString(); // Convert to local time zone
+  };
+
   return (
     <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
@@ -164,7 +173,7 @@ function Courses() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <>
+        <TableContainer component={Paper} style={{ padding: "15px" }} elevation={5}>
           <Table>
             <TableHead>
               <TableRow>
@@ -180,7 +189,7 @@ function Courses() {
                 <TableRow key={course.id}>
                   <TableCell>{course.name}</TableCell>
                   <TableCell>{course.description}</TableCell>
-                  <TableCell>{course.createdAt}</TableCell>
+                  <TableCell>{formatCreatedAt(course.createdAt)}</TableCell>
                   <TableCell>{course.createdBy}</TableCell>
                   <TableCell>
                     <IconButton edge="end" onClick={() => handleEditCourse(course)}>
@@ -207,7 +216,7 @@ function Courses() {
               color="primary"
             />
           </Box>
-        </>
+          </TableContainer>
       )}
 
       <Modal open={open} onClose={handleClose}>

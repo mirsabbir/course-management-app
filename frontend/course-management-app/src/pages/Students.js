@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
+  TableContainer,
+  Paper,
   Container,
   Typography,
   Button,
@@ -150,6 +152,13 @@ function Students() {
     setPageNumber(newPage); // Update page number when pagination is clicked
   };
 
+  // Function to format createdAt in local time zone
+  const formatCreatedAt = (createdAt) => {
+    if (!createdAt) return "N/A"; // Handle undefined or null values
+    const date = new Date(createdAt);
+    return date.toLocaleString(); // Convert to local time zone
+  };
+
   return (
     <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
@@ -167,7 +176,7 @@ function Students() {
       {loading ? (
         <CircularProgress />
       ) : (
-        <>
+        <TableContainer component={Paper} style={{ padding: "15px" }} elevation={5}>
           <Table>
             <TableHead>
               <TableRow>
@@ -184,8 +193,8 @@ function Students() {
                 <TableRow key={student.id}>
                   <TableCell>{student.fullName}</TableCell>
                   <TableCell>{student.email}</TableCell>
-                  <TableCell>{student.dateOfBirth}</TableCell>
-                  <TableCell>{student.createdAt}</TableCell>
+                  <TableCell>{formatCreatedAt(student.dateOfBirth)}</TableCell>
+                  <TableCell>{formatCreatedAt(student.createdAt)}</TableCell>
                   <TableCell>{student.createdBy}</TableCell>
                   <TableCell>
                     <IconButton edge="end" onClick={() => handleEditStudent(student)}>
@@ -212,7 +221,7 @@ function Students() {
               color="primary"
             />
           </Box>
-        </>
+        </TableContainer>
       )}
 
       <Modal open={open} onClose={handleClose}>
