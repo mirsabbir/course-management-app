@@ -31,6 +31,14 @@ namespace CourseManagement.Application.Services
             _logger.LogInformation("Creating a new class with Name: {ClassName}, Description: {ClassDescription}",
                 createClassDTO.Name, createClassDTO.Description);
 
+            // Check if a class with the same name already exists
+            bool classExists = await _classRepository.ExistsByNameAsync(createClassDTO.Name);
+            if (classExists)
+            {
+                _logger.LogWarning("Class creation failed. A class with the name '{ClassName}' already exists.", createClassDTO.Name);
+                throw new InvalidOperationException($"A class with the name '{createClassDTO.Name}' already exists.");
+            }
+
             var newClass = new Class
             {
                 Id = Guid.NewGuid(),

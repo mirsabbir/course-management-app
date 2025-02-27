@@ -16,5 +16,6 @@ namespace CourseManagement.Application.Interfaces
         Task AddStudentAsync(Student student);
         Task UpdateStudentAsync(Student student);
         Task DeleteStudentAsync(Guid studentId);
+        Task<bool> ExistsByEmailAsync(string email);
     }
 }

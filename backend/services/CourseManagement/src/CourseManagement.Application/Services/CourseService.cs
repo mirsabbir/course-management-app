@@ -35,6 +35,14 @@ namespace CourseManagement.Application.Services
             _logger.LogInformation("Starting to create a new course. Name: {CourseName}, Description: {CourseDescription}",
                 createCourseDTO.Name, createCourseDTO.Description);
 
+            // Check if a course with the same name already exists
+            bool courseExists = await _courseRepository.ExistsByNameAsync(createCourseDTO.Name);
+            if (courseExists)
+            {
+                _logger.LogWarning("Course creation failed. A course with the name '{CourseName}' already exists.", createCourseDTO.Name);
+                throw new InvalidOperationException($"A course with the name '{createCourseDTO.Name}' already exists.");
+            }
+
             // Create the new course entity
             var newCourse = new Course
             {

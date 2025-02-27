@@ -17,5 +17,6 @@ namespace CourseManagement.Application.Interfaces
         Task AddAsync(Course course);
         Task UpdateAsync(Course course);
         Task DeleteAsync(Guid courseId);
+        Task<bool> ExistsByNameAsync(string name);
     }
 }

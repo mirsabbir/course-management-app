@@ -72,6 +72,12 @@ namespace CourseManagement.Infrastructure.Repositories
                 .Where(course => course.ClassCourses.Any(cc => cc.ClassId == classId))
                 .ToListAsync();
         }
+
+        // Check if a course with the given name exists (case-insensitive check)
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await _context.Courses.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+        }
     }
 
 }

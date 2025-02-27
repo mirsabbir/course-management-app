@@ -66,6 +66,11 @@ namespace CourseManagement.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-    }
 
+        // Check if a student with the given email exists (case-insensitive check)
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            return await _context.Students.AnyAsync(s => s.Email.ToLower() == email.ToLower());
+        }
+    }
 }

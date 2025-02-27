@@ -32,6 +32,14 @@ namespace CourseManagement.Application.Services
             _logger.LogInformation("Creating a new student. FullName: {FullName}, Email: {Email}, DateOfBirth: {DateOfBirth}",
                 createStudentDTO.FullName, createStudentDTO.Email, createStudentDTO.DateOfBirth);
 
+            // Check if a student with the same email already exists
+            bool studentExists = await _studentRepository.ExistsByEmailAsync(createStudentDTO.Email);
+            if (studentExists)
+            {
+                _logger.LogWarning("Student creation failed. A student with the email '{StudentEmail}' already exists.", createStudentDTO.Email);
+                throw new InvalidOperationException($"A student with the email '{createStudentDTO.Email}' already exists.");
+            }
+
             // Attempt to create a new user for the student
             string userId = null;
             try
