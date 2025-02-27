@@ -12,15 +12,17 @@ import {
   Divider,
   CssBaseline,
   Box,
+  IconButton,
 } from "@mui/material";
+import { Menu as MenuIcon, Home, Book, Class, People, Close as CloseIcon } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Book, Class, People } from "@mui/icons-material"; // Icons for menu options
 import CryptoJS from "crypto-js";
 
 function Navbar() {
   const [userName, setUserName] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // Get current route location
+  const location = useLocation();
 
   // Generate a random string for the code verifier
   const generateRandomString = (length) => {
@@ -43,24 +45,20 @@ function Navbar() {
       .replace(/=/g, "");
   };
 
-  // Handle login redirect
+  // Handle login redirect (PKCE Flow)
   const handleLogin = () => {
     const codeVerifier = generateRandomString(64);
     const codeChallenge = generateCodeChallenge(codeVerifier);
-
-    // Store the code verifier in localStorage
     localStorage.setItem("code_verifier", codeVerifier);
 
-    // Redirect to the OAuth provider's authorization endpoint
     const authEndpoint = "http://localhost:5161/connect/authorize";
     const clientId = "frontend-app";
     const redirectUrl = encodeURIComponent("http://localhost:3000/callback");
     const scope = encodeURIComponent("openid profile offline_access course.manage");
-    const state = "some_random_state_value"; // For CSRF protection
+    const state = "some_random_state_value";
 
     const authUrl = `${authEndpoint}?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&scope=${scope}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-  
-    // Redirect the user to the OAuth provider
+    
     window.location.href = authUrl;
   };
 
@@ -83,15 +81,21 @@ function Navbar() {
 
   return (
     <>
-      <CssBaseline /> {/* Normalize CSS */}
-      <AppBar position="sticky" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <CssBaseline />
+      <AppBar position="sticky">
         <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
+          {/* Hamburger Icon to Open Drawer */}
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)} sx={{ mr: 2 }}>
+            <MenuIcon />
+          </IconButton>
+
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
             University Course Management
           </Typography>
+
           {userName ? (
             <>
-              <Typography variant="body1" style={{ marginRight: "20px" }}>
+              <Typography variant="body1" sx={{ mr: 2 }}>
                 Welcome, {userName}
               </Typography>
               <Button color="inherit" onClick={handleLogout}>
@@ -106,24 +110,30 @@ function Navbar() {
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar */}
+      {/* Closable Drawer */}
       <Drawer
-        variant="permanent"
-        sx={{
-          width: 240,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: "border-box" },
-        }}
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
       >
-        <Toolbar /> {/* Add space for the AppBar */}
-        <Box sx={{ overflow: "auto" }}>
+        <Box sx={{ width: 240 }}>
+          {/* Close Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+            <IconButton onClick={() => setDrawerOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
           <List>
             {menuItems.map((item) => (
               <ListItem
                 button
                 key={item.text}
-                selected={location.pathname === item.path} // Highlight active menu item
-                onClick={() => navigate(item.path)}
+                selected={location.pathname === item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  setDrawerOpen(false); // Close drawer after navigation
+                }}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
