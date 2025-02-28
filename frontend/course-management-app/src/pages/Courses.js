@@ -23,7 +23,7 @@ import {
   Alert,
   Pagination,
 } from "@mui/material";
-import { Delete, Edit, People } from "@mui/icons-material";
+import { Book, Delete, Edit, People } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -184,6 +184,7 @@ function Courses() {
                 <TableCell><strong>Created At</strong></TableCell>
                 <TableCell><strong>Created By</strong></TableCell>
                 <TableCell><strong>Manage Students</strong></TableCell>
+                <TableCell><strong>Manage Classes</strong></TableCell>
                 <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>
@@ -200,6 +201,14 @@ function Courses() {
                                   state: { courseName: course.name },
                                 })}>
                       <People color="primary"></People>
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => 
+                                navigate(`/courses/${course.id}/classes`, {
+                                  state: { courseName: course.name },
+                                })}>
+                      <Book color="primary"></Book>
                     </IconButton>
                   </TableCell>
                   <TableCell>

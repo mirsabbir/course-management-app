@@ -35,6 +35,8 @@ namespace Authorization.Infrastructure
             builder.Entity<User>().HasData(seedData.Users.Select(u => new User
             {
                 Id = u.Id,
+                FullName = u.FullName,
+                DateOfBirth = u.DateOfBirth.ToUniversalTime(),
                 UserName = u.UserName,
                 NormalizedUserName = u.NormalizedUserName,
                 Email = u.Email,

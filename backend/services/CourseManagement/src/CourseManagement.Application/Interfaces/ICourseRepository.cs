@@ -18,5 +18,6 @@ namespace CourseManagement.Application.Interfaces
         Task UpdateAsync(Course course);
         Task DeleteAsync(Guid courseId);
         Task<bool> ExistsByNameAsync(string name);
+        Task<IEnumerable<Course>> SearchAsync(string query);
     }
 }

@@ -21,6 +21,7 @@ namespace CourseManagement.Infrastructure
         public DbSet<Class> Classes { get; set; }
         public DbSet<CourseStudent> CourseStudents { get; set; }
         public DbSet<ClassStudent> ClassStudents { get; set; }
+        public DbSet<ClassCourse> ClassCourses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

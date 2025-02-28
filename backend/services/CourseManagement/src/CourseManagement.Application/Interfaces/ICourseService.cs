@@ -3,6 +3,7 @@ using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,5 +23,8 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id);
         Task EnrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
         Task UnenrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
+        Task<IEnumerable<Course>> SearchCoursesAsync(string query);
+        Task<bool> AddClassToCourseAsync(AddClassToCourseDTO addClassToCourseDTO);
+        Task<bool> RemoveClassFromCourseAsync(Guid courseId, Guid classId);
     }
 }

@@ -3,6 +3,7 @@ using CourseManagement.API.Models;
 using CourseManagement.Application.DTOs.Classes;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.Interfaces;
+using CourseManagement.Application.Services;
 using CourseManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
@@ -104,6 +105,13 @@ namespace CourseManagement.API.Controllers
 
             await _classService.UnenrollStudentAsync(enrollmentDTO);
             return Ok();
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchClasses([FromQuery] string query)
+        {
+            var classes = await _classService.SearchClassesAsync(query);
+            return Ok(classes);
         }
     }
 }

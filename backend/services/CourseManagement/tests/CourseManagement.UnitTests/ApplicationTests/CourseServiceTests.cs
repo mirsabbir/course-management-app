@@ -28,6 +28,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly Mock<ILogger<CourseService>> _mockLogger;
         private readonly Mock<ICourseStudentRepository> _mockCourseStudentRepository;
+        private readonly Mock<IClassCourseRepository> _mockClassCourseRepository;
         private readonly CourseService _courseService;
 
         public CourseServiceTests()
@@ -38,6 +39,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             _mockUserService = new Mock<IUserService>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             _mockCourseStudentRepository = new Mock<ICourseStudentRepository>();
+            _mockClassCourseRepository = new Mock<IClassCourseRepository>();
             _mockLogger = new Mock<ILogger<CourseService>>();
 
             _courseService = new CourseService(
@@ -47,6 +49,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 _mockUserService.Object,
                 _mockHttpContextAccessor.Object,
                 _mockCourseStudentRepository.Object,
+                _mockClassCourseRepository.Object,
                 _mockLogger.Object
             );
         }
@@ -122,24 +125,17 @@ namespace CourseManagement.UnitTests.ApplicationTests
 
 
         [Fact]
-        public async Task EnrollStudentAsync_ShouldEnrollStudent()
+        public async Task EnrollStudentAsync_ShouldEnrollStudent_WhenStudentAndCourseExistAndNotAlreadyEnrolled()
         {
             // Arrange
             var courseEnrollmentDTO = new CourseEnrollmentDTO
             {
-                CourseId = Guid.NewGuid(),
-                StudentId = Guid.NewGuid()
+                StudentId = Guid.NewGuid(),
+                CourseId = Guid.NewGuid()
             };
 
-            var student = new Student { Id = courseEnrollmentDTO.StudentId, CreatedByName = string.Empty, Email = "a@a.com", FullName = "name" };
-            var course = new Course
-            {
-                Id = courseEnrollmentDTO.CourseId,
-                CourseStudents = new List<CourseStudent>(),
-                CreatedByName = string.Empty,
-                Description = string.Empty,
-                Name = string.Empty
-            };
+            var student = new Student {Id = courseEnrollmentDTO.StudentId, CreatedByName = "test", Email = "a@a.com", FullName = "full name" };
+            var course = new Course {Id = courseEnrollmentDTO.CourseId, CreatedByName = "test", Name = "course 1", Description = "123" };
 
             _mockStudentRepository
                 .Setup(repo => repo.GetStudentByIdAsync(courseEnrollmentDTO.StudentId))
@@ -149,17 +145,119 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .Setup(repo => repo.GetByIdAsync(courseEnrollmentDTO.CourseId))
                 .ReturnsAsync(course);
 
-            _mockCourseRepository
-                .Setup(repo => repo.UpdateAsync(course))
+            _mockCourseStudentRepository
+                .Setup(repo => repo.ExistsAsync(course.Id, student.Id))
+                .ReturnsAsync(false);
+
+            _mockCourseStudentRepository
+                .Setup(repo => repo.AddAsync(It.IsAny<CourseStudent>()))
                 .Returns(Task.CompletedTask);
 
             // Act
             await _courseService.EnrollStudentAsync(courseEnrollmentDTO);
 
             // Assert
-            _mockCourseRepository.Verify(repo => repo.UpdateAsync(course), Times.Once);
-            Assert.Single(course.CourseStudents);
-            Assert.Equal(courseEnrollmentDTO.StudentId, course.CourseStudents.First().StudentId);
+            _mockCourseStudentRepository.Verify(repo => repo.AddAsync(It.IsAny<CourseStudent>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task EnrollStudentAsync_ShouldThrowNotFoundException_WhenStudentNotFound()
+        {
+            // Arrange
+            var courseEnrollmentDTO = new CourseEnrollmentDTO
+            {
+                StudentId = Guid.NewGuid(),
+                CourseId = Guid.NewGuid()
+            };
+
+            _mockStudentRepository
+                .Setup(repo => repo.GetStudentByIdAsync(courseEnrollmentDTO.StudentId))
+                .ReturnsAsync((Student)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
+        }
+
+        [Fact]
+        public async Task EnrollStudentAsync_ShouldThrowNotFoundException_WhenCourseNotFound()
+        {
+            // Arrange
+            var courseEnrollmentDTO = new CourseEnrollmentDTO
+            {
+                StudentId = Guid.NewGuid(),
+                CourseId = Guid.NewGuid()
+            };
+
+            var student = new Student { Id = courseEnrollmentDTO.StudentId, CreatedByName = "test", Email = "a@a.com", FullName = "full name" };
+
+            _mockStudentRepository
+                .Setup(repo => repo.GetStudentByIdAsync(courseEnrollmentDTO.StudentId))
+                .ReturnsAsync(student);
+
+            _mockCourseRepository
+                .Setup(repo => repo.GetByIdAsync(courseEnrollmentDTO.CourseId))
+                .ReturnsAsync((Course)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
+        }
+
+        [Fact]
+        public async Task EnrollStudentAsync_ShouldThrowInvalidOperationException_WhenStudentAlreadyEnrolled()
+        {
+            // Arrange
+            var courseEnrollmentDTO = new CourseEnrollmentDTO
+            {
+                StudentId = Guid.NewGuid(),
+                CourseId = Guid.NewGuid()
+            };
+
+            var student = new Student { Id = courseEnrollmentDTO.StudentId, CreatedByName = "test", Email = "a@a.com", FullName = "full name" };
+            var course = new Course { Id = courseEnrollmentDTO.CourseId, CreatedByName = "test", Name = "course 1", Description = "123" };
+
+            _mockStudentRepository
+                .Setup(repo => repo.GetStudentByIdAsync(courseEnrollmentDTO.StudentId))
+                .ReturnsAsync(student);
+
+            _mockCourseRepository
+                .Setup(repo => repo.GetByIdAsync(courseEnrollmentDTO.CourseId))
+                .ReturnsAsync(course);
+
+            _mockCourseStudentRepository
+                .Setup(repo => repo.ExistsAsync(course.Id, student.Id))
+                .ReturnsAsync(true);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
+        }
+
+        [Fact]
+        public async Task EnrollStudentAsync_ShouldLogAndRethrowException_WhenUnexpectedErrorOccurs()
+        {
+            // Arrange
+            var courseEnrollmentDTO = new CourseEnrollmentDTO
+            {
+                StudentId = Guid.NewGuid(),
+                CourseId = Guid.NewGuid()
+            };
+
+            var student = new Student { Id = courseEnrollmentDTO.StudentId, CreatedByName = "test", Email = "a@a.com", FullName = "full name" };
+            var course = new Course { Id = courseEnrollmentDTO.CourseId, CreatedByName = "test", Name = "course 1", Description = "123" };
+
+            _mockStudentRepository
+                .Setup(repo => repo.GetStudentByIdAsync(courseEnrollmentDTO.StudentId))
+                .ReturnsAsync(student);
+
+            _mockCourseRepository
+                .Setup(repo => repo.GetByIdAsync(courseEnrollmentDTO.CourseId))
+                .ReturnsAsync(course);
+
+            _mockCourseStudentRepository
+                .Setup(repo => repo.ExistsAsync(course.Id, student.Id))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _courseService.EnrollStudentAsync(courseEnrollmentDTO));
         }
 
         [Fact]
@@ -290,19 +388,24 @@ namespace CourseManagement.UnitTests.ApplicationTests
             var course = new Course
             {
                 Id = courseId,
-                CourseStudents = new List<CourseStudent>
-                {
-                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "John Doe", Email = "john@example.com", DateOfBirth = new DateTime(2000, 1, 1), CreatedByName = string.Empty }, AssignedByName = string.Empty },
-                    new CourseStudent { Student = new Student { Id = Guid.NewGuid(), FullName = "Jane Smith", Email = "jane@example.com", DateOfBirth = new DateTime(1999, 5, 15), CreatedByName = string.Empty }, AssignedByName = string.Empty }
-                },
                 CreatedByName = string.Empty,
                 Description = string.Empty,
                 Name = "New Course"
             };
 
+            var students = new List<Student>
+                {
+                    new Student { Id = Guid.NewGuid(), FullName = "John Doe", Email = "john@example.com", DateOfBirth = new DateTime(2000, 1, 1), CreatedByName = string.Empty  },
+                    new Student { Id = Guid.NewGuid(), FullName = "Jane Smith", Email = "jane@example.com", DateOfBirth = new DateTime(1999, 5, 15), CreatedByName = string.Empty }
+                };
+
             _mockCourseRepository
                 .Setup(repo => repo.GetByIdAsync(courseId))
                 .ReturnsAsync(course);
+
+            _mockCourseStudentRepository
+               .Setup(repo => repo.GetStudentsByCourseIdAsync(courseId))
+               .ReturnsAsync(students);
 
             // Act
             var result = await _courseService.GetStudentsAsync(courseId);

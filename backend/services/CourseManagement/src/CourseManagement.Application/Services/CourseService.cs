@@ -22,6 +22,7 @@ namespace CourseManagement.Application.Services
         IUserService userService,
         IHttpContextAccessor httpContextAccessor,
         ICourseStudentRepository courseStudentRepository,
+        IClassCourseRepository classCourseRepository,
         ILogger<CourseService> logger) : ICourseService
     {
         private readonly ICourseRepository _courseRepository = courseRepository;
@@ -30,6 +31,7 @@ namespace CourseManagement.Application.Services
         private readonly IUserService _userService = userService;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly ICourseStudentRepository _courseStudentRepository = courseStudentRepository;
+        private readonly IClassCourseRepository _classCourseRepository = classCourseRepository;
         private readonly ILogger<CourseService> _logger = logger;
 
         public async Task<CourseDTO> CreateCourseAsync(CreateCourseDTO createCourseDTO)
@@ -329,17 +331,6 @@ namespace CourseManagement.Application.Services
             };
         }
 
-        private Guid GetCurrentUserId()
-        {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
-        }
-
-        private string GetCurrentUserName()
-        {
-            return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value ?? string.Empty;
-        }
-
         public async Task UnenrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO)
         {
             _logger.LogInformation("Unenrolling student {StudentId} from course {CourseId}",
@@ -384,5 +375,60 @@ namespace CourseManagement.Application.Services
             }
         }
 
+        public async Task<IEnumerable<Course>> SearchCoursesAsync(string query)
+        {
+            return await _courseRepository.SearchAsync(query);
+        }
+
+        public async Task<bool> AddClassToCourseAsync(AddClassToCourseDTO addClassToCourseDTO)
+        {
+            var course = await _courseRepository.GetByIdAsync(addClassToCourseDTO.CourseId);
+            var @class = await _classRepository.GetByIdAsync(addClassToCourseDTO.ClassId);
+
+            if (course == null || @class == null)
+            {
+                throw new NotFoundException("Course or Class not found");
+            }
+
+            bool alreadyLinked = await _classCourseRepository.ExistsAsync(addClassToCourseDTO.CourseId, addClassToCourseDTO.ClassId);
+            if (alreadyLinked)
+            {
+                throw new InvalidOperationException("Already linked");
+            }
+
+            var classCourse = new ClassCourse
+            {
+                CourseId = addClassToCourseDTO.CourseId,
+                ClassId = addClassToCourseDTO.ClassId,
+                AssignedById = GetCurrentUserId(),
+                AssignedByName = GetCurrentUserName()
+            };
+
+            await _classCourseRepository.AddAsync(classCourse);
+            return true;
+        }
+
+        public async Task<bool> RemoveClassFromCourseAsync(Guid courseId, Guid classId)
+        {
+            bool exists = await _classCourseRepository.ExistsAsync(courseId, classId);
+            if (!exists)
+            {
+                return false;
+            }
+
+            await _classCourseRepository.RemoveAsync(courseId, classId);
+            return true;
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+        }
+
+        private string GetCurrentUserName()
+        {
+            return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value ?? string.Empty;
+        }
     }
 }

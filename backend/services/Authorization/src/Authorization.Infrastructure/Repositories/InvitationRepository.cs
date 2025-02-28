@@ -50,5 +50,19 @@ namespace Authorization.Infrastructure.Repositories
                                    .FirstOrDefaultAsync(i => i.Email == email);
         }
 
+        public async Task<Invitation> GetInvitationByIdAsync(Guid invitationId)
+        {
+            return await _context.Invitations.FindAsync(invitationId);
+        }
+
+        public async Task DeleteInvitationAsync(Guid invitationId)
+        {
+            var invitation = await _context.Invitations.FindAsync(invitationId);
+            if (invitation != null)
+            {
+                _context.Invitations.Remove(invitation);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

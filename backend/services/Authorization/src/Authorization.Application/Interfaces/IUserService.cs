@@ -15,5 +15,6 @@ namespace Authorization.Application.Interfaces
         Task<Invitation> GetValidInvitationAsync(string token);
         Task<IEnumerable<UserDTO>> GetAllUsers();
         Task<UserDTO> GetUserById(Guid userId);
+        Task DeleteUser(Guid userId);
     }
 }

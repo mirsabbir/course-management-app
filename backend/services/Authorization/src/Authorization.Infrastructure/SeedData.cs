@@ -21,6 +21,8 @@ namespace Authorization.Infrastructure
         public string Email { get; set; }
         public string NormalizedEmail { get; set; }
         public bool EmailConfirmed { get; set; }
+        public string FullName { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string Password { get; set; }
     }
 

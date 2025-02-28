@@ -116,6 +116,7 @@ namespace CourseManagement.Application.Services
 
             try
             {
+                // Retrieve the student by ID
                 var student = await _studentRepository.GetStudentByIdAsync(id);
 
                 if (student == null)
@@ -124,6 +125,21 @@ namespace CourseManagement.Application.Services
                     throw new NotFoundException("Student not found.");
                 }
 
+                _logger.LogInformation("Deleting user associated with student ID {StudentId}", id);
+
+                // Call the user service to delete the user
+                try
+                {
+                    await _userService.DeleteUserByIdAsync(student.UserId);
+                    _logger.LogInformation("Successfully deleted user for student ID {StudentId}", id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to delete user for student ID {StudentId}", id);
+                    throw; // Re-throw the exception after logging
+                }
+
+                // Delete the student from the repository
                 await _studentRepository.DeleteStudentAsync(id);
                 _logger.LogInformation("Successfully deleted student with ID {StudentId}", id);
             }

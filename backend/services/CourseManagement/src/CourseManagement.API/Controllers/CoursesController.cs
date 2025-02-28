@@ -91,7 +91,7 @@ namespace CourseManagement.API.Controllers
         }
 
         [HttpPost("{courseId}/students")]
-        public async Task<IActionResult> EnrollToCourse(Guid courseId, CourseEnrollmentDTO courseEnrollmentDTO)
+        public async Task<IActionResult> EnrollToCourse(Guid courseId, [FromBody] CourseEnrollmentDTO courseEnrollmentDTO)
         {
             if (courseId != courseEnrollmentDTO.CourseId)
             {
@@ -114,5 +114,51 @@ namespace CourseManagement.API.Controllers
             await _courseService.UnenrollStudentAsync(enrollmentDTO);
             return Ok();
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchCourses([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query parameter is required.");
+            }
+
+            var courses = await _courseService.SearchCoursesAsync(query);
+            return Ok(courses);
+        }
+
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
+        [HttpPost("{courseId}/classes")]
+        public async Task<IActionResult> AddClassToCourse(Guid courseId, [FromBody] AddClassToCourseDTO addClassToCourseDTO)
+        {
+            if (courseId != addClassToCourseDTO.CourseId)
+            {
+                throw new InvalidOperationException("CourseId in Body doesn't match with CourseId in URL.");
+            }
+
+            var result = await _courseService.AddClassToCourseAsync(addClassToCourseDTO);
+
+            if (!result)
+            {
+                return BadRequest("Failed to add class to course.");
+            }
+
+            return Ok("Class successfully added to course.");
+        }
+
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
+        [HttpDelete("{courseId}/classes/{classId}")]
+        public async Task<IActionResult> RemoveClassFromCourse(Guid courseId, Guid classId)
+        {
+            var result = await _courseService.RemoveClassFromCourseAsync(courseId, classId);
+
+            if (!result)
+            {
+                return NotFound("Class not found in the course.");
+            }
+
+            return Ok("Class successfully removed from course.");
+        }
+
     }
 }

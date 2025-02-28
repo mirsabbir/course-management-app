@@ -2,6 +2,7 @@
 using CourseManagement.Application.DTOs.Courses;
 using CourseManagement.Application.DTOs.Enrollment;
 using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Domain;
 
 namespace CourseManagement.Application.Interfaces
 {
@@ -16,5 +17,6 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id);
         Task EnrollStudentAsync(ClassEnrollmentDTO classEnrollmentDTO);
         Task UnenrollStudentAsync(ClassEnrollmentDTO classEnrollmentDTO);
+        Task<IEnumerable<Class>> SearchClassesAsync(string query);
     }
 }

@@ -78,6 +78,15 @@ namespace CourseManagement.Infrastructure.Repositories
         {
             return await _context.Courses.AnyAsync(c => c.Name.ToLower() == name.ToLower());
         }
+
+        public async Task<IEnumerable<Course>> SearchAsync(string query)
+        {
+            return await _context.Courses
+                .Where(c => c.Name.ToLower().Contains(query.ToLower())
+                         || c.Description.ToLower().Contains(query.ToLower()))
+                .ToListAsync();
+        }
+
     }
 
 }

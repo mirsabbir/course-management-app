@@ -1,4 +1,5 @@
 ﻿using Authorization.Application.DTOs;
+using Authorization.Application.Exceptions;
 using Authorization.Application.Interfaces;
 using Authorization.Domain;
 using Microsoft.AspNetCore.Identity;
@@ -104,6 +105,14 @@ namespace Authorization.Application.Services
                 }
 
                 _logger.LogInformation("Found valid invitation for email {Email} with token {Token}", invitation.Email, token);
+
+                // Check if a user with the same email already exists
+                var existingUser = await _userManager.FindByEmailAsync(invitation.Email);
+                if (existingUser != null)
+                {
+                    _logger.LogWarning("User with email {Email} already exists.", invitation.Email);
+                    throw new Exception("User with this email already exists.");
+                }
 
                 // Create the user
                 var user = new User
@@ -233,5 +242,25 @@ namespace Authorization.Application.Services
             return userDTO;
         }
 
+        public async Task DeleteUser(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+            {
+                var invitation = await _invitationRepository.GetInvitationByIdAsync(userId) 
+                    ?? throw new NotFoundException($"User with ID {userId} was not found.");
+                await _invitationRepository.DeleteInvitationAsync(invitation.Id);
+                return; // return from here , no need to delete the user because user is not created
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to delete user: {errors}");
+            }
+        }
     }
 }

@@ -12,5 +12,6 @@ namespace CourseManagement.Application.Interfaces
         Task<string> CreateUserAsync(CreateUserDTO createUserDTO);
         Task<IEnumerable<UserDTO>> GetAllUsersAsync();
         Task<UserDTO> GetUserByIdAsync(Guid id);
+        Task DeleteUserByIdAsync(Guid id);
     }
 }

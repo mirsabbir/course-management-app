@@ -184,5 +184,41 @@ namespace CourseManagement.Infrastructure.Services
                 throw; // Propagate the error
             }
         }
+
+        public async Task DeleteUserByIdAsync(Guid id)
+        {
+            _logger.LogInformation("Entering DeleteUserByIdAsync method to delete user by ID: {UserId}", id);
+
+            try
+            {
+                // Fetch the access token
+                var token = await GetAccessTokenAsync();
+                _logger.LogInformation("Fetched access token for deleting user by ID: {UserId}", id);
+
+                // Set the authorization header
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                // Format the URL to delete the user by ID
+                var userApiUrl = string.Format(_configuration["UserService:GetUserByIdUrl"], id);
+                _logger.LogInformation("Sending DELETE request to URL: {UserApiUrl} to delete user with ID: {UserId}", userApiUrl, id);
+
+                // Send the HTTP request to delete the user
+                var response = await _httpClient.DeleteAsync(userApiUrl);
+
+                // Log response status
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to delete user. Status Code: {StatusCode}, Reason: {Reason}", response.StatusCode, response.ReasonPhrase);
+                    throw new HttpRequestException($"Failed to delete user. Status Code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+                }
+
+                _logger.LogInformation("Successfully deleted user with ID: {UserId}.", id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting user by ID: {UserId}.", id);
+                throw; // Propagate the error
+            }
+        }
     }
 }

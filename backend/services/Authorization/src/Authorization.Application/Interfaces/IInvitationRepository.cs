@@ -11,7 +11,9 @@ namespace Authorization.Application.Interfaces
     {
         Task SaveInvitationAsync(Invitation invitation);
         Task<Invitation> GetInvitationByTokenAsync(string token);
+        Task<Invitation> GetInvitationByIdAsync(Guid invitationId);
         Task DeleteInvitationAsync(string token);
+        Task DeleteInvitationAsync(Guid invitationId);
         Task<Invitation> GetInvitationByEmailAsync(string email);
     }
 }

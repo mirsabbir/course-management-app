@@ -41,5 +41,13 @@ namespace Authorization.API.Controllers
 
             return Ok(user);
         }
+
+        [AuthorizeRolesAndScopes(roles: [], scopes: ["user.manage"])]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserById(Guid id)
+        {
+            await _userService.DeleteUser(id);
+            return Ok();
+        }
     }
 }

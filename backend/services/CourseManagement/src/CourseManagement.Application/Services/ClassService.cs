@@ -397,6 +397,11 @@ namespace CourseManagement.Application.Services
             }
         }
 
+        public async Task<IEnumerable<Class>> SearchClassesAsync(string query)
+        {
+            return await _classRepository.SearchAsync(query);
+        }
+
         private Guid GetCurrentUserId()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;

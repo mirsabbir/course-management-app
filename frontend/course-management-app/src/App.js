@@ -10,6 +10,8 @@ import Classes from "./pages/Classes";
 import Students from "./pages/Students";
 import CourseStudent from "./pages/CourseStudent";
 import ClassStudent from "./pages/ClassStudent";
+import ClassCourse from "./pages/ClassCourse";
+import CourseClass from "./pages/CourseClass";
 import StudentDashboard from "./pages/StudentDashboard";
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
         <Route path="/students" element={<Students />} />
         <Route path="/courses/:courseId/students" element={<CourseStudent />} />
         <Route path="/classes/:classId/students" element={<ClassStudent />} />
+        <Route path="/classes/:classId/courses" element={<ClassCourse />} />
+        <Route path="/courses/:courseId/classes" element={<CourseClass />} />
         <Route path="/student" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
       </Routes>
     </Router>

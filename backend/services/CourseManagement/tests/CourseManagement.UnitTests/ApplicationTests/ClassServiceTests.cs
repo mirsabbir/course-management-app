@@ -28,6 +28,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
         private readonly Mock<IHttpContextAccessor> _mockHttpContextAccessor;
         private readonly Mock<IUserService> _mockUserService;
         private readonly Mock<ILogger<ClassService>> _mockLogger;
+        private readonly Mock<IClassStudentRepository> _mockClassStudentRepository;
         private readonly ClassService _classService;
 
         public ClassServiceTests()
@@ -37,6 +38,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
             _mockStudentRepository = new Mock<IStudentRepository>();
             _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
             _mockUserService = new Mock<IUserService>();
+            _mockClassStudentRepository = new Mock<IClassStudentRepository>();
             _mockLogger = new Mock<ILogger<ClassService>>();
 
             _classService = new ClassService(
@@ -45,6 +47,7 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 _mockStudentRepository.Object,
                 _mockHttpContextAccessor.Object,
                 _mockUserService.Object,
+                _mockClassStudentRepository.Object,
                 _mockLogger.Object
             );
         }
@@ -143,21 +146,27 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 .Setup(repo => repo.GetStudentByIdAsync(classEnrollmentDTO.StudentId))
                 .ReturnsAsync(student);
 
+            _mockClassStudentRepository
+                .Setup(repo => repo.ExistsAsync(classEnrollmentDTO.ClassId, classEnrollmentDTO.StudentId))
+                .ReturnsAsync(false);
+
+            _mockClassStudentRepository
+                .Setup(repo => repo.AddAsync(It.IsAny<ClassStudent>())) // Use It.IsAny to ignore specific values
+                .Returns(Task.CompletedTask);
+
             _mockClassRepository
                 .Setup(repo => repo.GetByIdAsync(classEnrollmentDTO.ClassId))
                 .ReturnsAsync(classEntity);
 
-            _mockClassRepository
-                .Setup(repo => repo.UpdateAsync(classEntity))
-                .Returns(Task.CompletedTask);
+            var assignedById = Guid.NewGuid();
+            var assignedByName = "test user";
+            SetupHttpContext(assignedById.ToString(), assignedByName);
 
             // Act
             await _classService.EnrollStudentAsync(classEnrollmentDTO);
 
             // Assert
-            _mockClassRepository.Verify(repo => repo.UpdateAsync(classEntity), Times.Once);
-            Assert.Single(classEntity.ClassStudents);
-            Assert.Equal(classEnrollmentDTO.StudentId, classEntity.ClassStudents.First().StudentId);
+            _mockClassStudentRepository.Verify(repo => repo.AddAsync(It.IsAny<ClassStudent>()), Times.Once);
         }
 
         [Fact]

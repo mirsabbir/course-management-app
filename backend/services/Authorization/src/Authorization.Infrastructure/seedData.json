@@ -19,6 +19,8 @@
       "Email": "staff@staff.com",
       "NormalizedEmail": "STAFF@STAFF.COM",
       "EmailConfirmed": true,
+      "FullName": "Staff",
+      "DateOfBirth": "1995-02-02",
       "Password": "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw=="
     }
   ],
