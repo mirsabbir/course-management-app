@@ -13,6 +13,7 @@ import ClassStudent from "./pages/ClassStudent";
 import ClassCourse from "./pages/ClassCourse";
 import CourseClass from "./pages/CourseClass";
 import Unauthorized from "./pages/Unauthorized";
+import Classmates from "./pages/Classmates";
 import { AuthProvider } from "./Contexts/AuthContext";
 import Login from "./pages/Login";
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/classes/:classId/students" element={<ClassStudent />} />
           <Route path="/classes/:classId/courses" element={<ClassCourse />} />
           <Route path="/courses/:courseId/classes" element={<CourseClass />} />
+          <Route path="/classes/:classId/classmates" element={<Classmates />} />
         </Route>
         {/* Fallback Route (e.g., for 404 Not Found) */}
         <Route path="*" element={<Navigate to="/" replace />} />

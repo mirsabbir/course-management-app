@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   TableContainer,
   Paper,
@@ -23,40 +23,31 @@ import {
   Alert,
   Pagination,
 } from "@mui/material";
-import { Delete, Edit, People, School } from "@mui/icons-material";
+import { Delete, Edit, Groups2, People, PeopleAlt, School } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // Import jwt-decode to parse the JWT token
+import { AuthContext } from "../Contexts/AuthContext"; // Adjust the import path
 
 function Classes() {
   const [open, setOpen] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [className, setClassName] = useState("");
   const [classDescription, setClassDescription] = useState("");
-  const [classes, setClasses] = useState([]); // Initialize as an empty array
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [classToDelete, setClassToDelete] = useState(null);
   const [editingClass, setEditingClass] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [pageNumber, setPageNumber] = useState(1); // Current page number
-  const [pageSize, setPageSize] = useState(5); // Number of items per page
-  const [totalPages, setTotalPages] = useState(1); // Total number of pages
-  const [totalCount, setTotalCount] = useState(0); // Total number of items
-  const [userRole, setUserRole] = useState(""); // User role
-  const [userId, setUserId] = useState(""); // User ID
-  const [studentId, setStudentId] = useState(""); // Student ID
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [studentId, setStudentId] = useState("");
   const navigate = useNavigate();
 
-  // Parse JWT token to extract user details
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      const decoded = jwtDecode(token);
-      setUserRole(decoded.role);
-      setUserId(decoded.userId);
-    }
-  }, []);
+  // Use AuthContext to get user role and ID
+  const { userRole, userId } = useContext(AuthContext);
 
   // Fetch student information if the user is a student
   useEffect(() => {
@@ -67,7 +58,7 @@ function Classes() {
           const response = await axios.get("http://localhost:5181/api/students/me", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          setStudentId(response.data.id); // Set the student ID from the response
+          setStudentId(response.data.id);
         } catch (error) {
           handleApiError(error);
           console.error("Error fetching student info:", error);
@@ -100,26 +91,24 @@ function Classes() {
       const token = localStorage.getItem("access_token");
       let apiUrl;
       if (userRole === "Student") {
-        // Call the student-specific endpoint using the studentId
         apiUrl = `http://localhost:5181/api/students/${studentId}/classes`;
       } else {
-        // Call the staff endpoint
         apiUrl = "http://localhost:5181/api/classes";
       }
       const response = await axios.get(apiUrl, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { pageNumber, pageSize }, // Add pagination query params
+        params: { pageNumber, pageSize },
       });
-      console.log("API Response:", response.data); // Log the API response
+      console.log("API Response:", response.data);
       if(userRole === "Student"){
-        setClasses(response.data || []); // Set courses from the `data` key
+        setClasses(response.data || []);
       } else{
-        setClasses(response.data.data || []); // Set courses from the `data` key
+        setClasses(response.data.data || []);
       }
-      setPageNumber(response.data.pageNumber); // Update current page number
-      setPageSize(response.data.pageSize); // Update page size
-      setTotalCount(response.data.totalCount); // Update total count
-      setTotalPages(response.data.totalPages); // Update total pages
+      setPageNumber(response.data.pageNumber);
+      setPageSize(response.data.pageSize);
+      setTotalCount(response.data.totalCount);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       handleApiError(error);
       console.error("Error fetching classes:", error);
@@ -130,7 +119,6 @@ function Classes() {
 
   useEffect(() => {
     if (userRole && (userRole !== "Student" || studentId)) {
-      // Only fetch classes if the user role is set and studentId is available for students
       fetchClasses();
     }
   }, [fetchClasses, userRole, studentId]);
@@ -196,14 +184,13 @@ function Classes() {
   };
 
   const handlePageChange = (event, newPage) => {
-    setPageNumber(newPage); // Update page number when pagination is clicked
+    setPageNumber(newPage);
   };
 
-  // Function to format createdAt in local time zone
   const formatCreatedAt = (createdAt) => {
-    if (!createdAt) return "N/A"; // Handle undefined or null values
+    if (!createdAt) return "N/A";
     const date = new Date(createdAt);
-    return date.toLocaleString(); // Convert to local time zone
+    return date.toLocaleString();
   };
 
   return (
@@ -236,6 +223,7 @@ function Classes() {
                 {userRole === "Staff" && <TableCell><strong>Manage Students</strong></TableCell>}
                 {userRole === "Staff" && <TableCell><strong>Manage Courses</strong></TableCell>}
                 {userRole === "Staff" && <TableCell><strong>Actions</strong></TableCell>}
+                {userRole === "Student" && <TableCell><strong>Classmates</strong></TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -278,6 +266,16 @@ function Classes() {
                       </IconButton>
                     </TableCell>
                   )}
+                  {userRole === "Student" && (
+                    <TableCell>
+                      <IconButton edge="end" onClick={() =>
+                                  navigate(`/classes/${cls.id}/classmates`, {
+                                    state: { className: cls.name, studentId: studentId, classId: cls.id },
+                                  })}>
+                        <Groups2 color="primary"></Groups2>
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -286,9 +284,9 @@ function Classes() {
           {/* Pagination Controls */}
           <Box display="flex" justifyContent="center" mt={2}>
             <Pagination
-              count={totalPages} // Total number of pages
-              page={pageNumber} // Current page number
-              onChange={handlePageChange} // Handle page change
+              count={totalPages}
+              page={pageNumber}
+              onChange={handlePageChange}
               color="primary"
             />
           </Box>

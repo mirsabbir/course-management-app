@@ -330,6 +330,24 @@ namespace CourseManagement.Application.Services
             };
         }
 
+        public async Task<IEnumerable<StudentDTO>> GetClassmates(Guid studentId, Guid classId)
+        {
+            // Fetch all students in the given class
+            var students = await _classStudentRepository.GetStudentsByClassIdAsync(classId);
+
+            // Filter out the requesting student
+            var classmates = students
+                .Where(student => student.Id != studentId)
+                .Select(student => new StudentDTO
+                {
+                    Id = student.Id,
+                    FullName = student.FullName,
+                    Email = student.Email // Assuming StudentDTO has Email
+                });
+
+            return classmates;
+        }
+
         private Guid GetCurrentUserId()
         {
             var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;

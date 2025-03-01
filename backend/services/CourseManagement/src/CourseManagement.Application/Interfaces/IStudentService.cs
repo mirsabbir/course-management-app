@@ -21,5 +21,6 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<StudentDTO>> SearchStudentsAsync(string searchTerm);
         Task<IEnumerable<CourseDTO>> GetCoursesAsync(Guid studentId);
         Task<IEnumerable<ClassDTO>> GetClassesAsync(Guid studentId);
+        Task<IEnumerable<StudentDTO>> GetClassmates(Guid studentId, Guid classId);
     }
 }

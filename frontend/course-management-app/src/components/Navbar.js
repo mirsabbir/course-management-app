@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../Contexts/AuthContext"; // Import the AuthContext
 
 function Navbar() {
-  const { userName, logout } = useContext(AuthContext); // Use AuthContext
+  const { userName, logout, userRole } = useContext(AuthContext); // Use AuthContext
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,7 +30,8 @@ function Navbar() {
         { text: "Home", icon: <Home />, path: "/" },
         { text: "Courses", icon: <School />, path: "/courses" },
         { text: "Classes", icon: <Class />, path: "/classes" },
-        { text: "Students", icon: <People />, path: "/students" },
+        // Conditionally include "Students" menu item if userRole is not "Student"
+        ...(userRole !== "Student" ? [{ text: "Students", icon: <People />, path: "/students" }] : []),
       ]
     : [];
 

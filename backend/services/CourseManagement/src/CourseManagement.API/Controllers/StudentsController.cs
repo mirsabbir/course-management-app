@@ -103,5 +103,13 @@ namespace CourseManagement.API.Controllers
             if (student == null) return NotFound();
             return Ok(student);
         }
+
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Student], scopes: ["course.manage"])]
+        [HttpGet("{studentId}/classes/{classId}/classmates")]
+        public async Task<IActionResult> GetClassmates(Guid studentId, Guid classId)
+        {
+            var students = await _studentService.GetClassmates(studentId, classId);
+            return Ok(students);
+        }
     }
 }
