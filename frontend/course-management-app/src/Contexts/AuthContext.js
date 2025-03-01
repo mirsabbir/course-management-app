@@ -15,10 +15,20 @@ const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log(decoded); // Debugging
-        setUserName(decoded.fullName); // Set the fullName from the JWT token
-        setUserRole(decoded.role); // Set the user role
-        setUserId(decoded.userId); // Set the user ID
+        const currentTime = Math.floor(Date.now() / 1000); // Current time in UTC seconds
+
+        // Check if the token is expired (using UTC time)
+        if (decoded.exp && decoded.exp > currentTime) {
+          setUserName(decoded.fullName); // Set the fullName from the JWT token
+          setUserRole(decoded.role); // Set the user role
+          setUserId(decoded.userId); // Set the user ID
+        } else {
+          // Token is expired, clear user details
+          setUserName(null);
+          setUserRole("");
+          setUserId("");
+          localStorage.removeItem("access_token"); // Optionally remove the expired token
+        }
       } catch (error) {
         console.error("Error decoding JWT token:", error);
         setUserName(null);
@@ -44,6 +54,8 @@ const AuthProvider = ({ children }) => {
     setUserName(null);
     setUserRole("");
     setUserId("");
+    const logoutUrl = "http://localhost:5161/Account/Logout";
+    window.location.href = logoutUrl;
   };
 
   return (

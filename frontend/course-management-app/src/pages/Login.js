@@ -1,8 +1,19 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import CryptoJS from "crypto-js";
 import { Container, Button, Box, Typography } from "@mui/material";
 
+
+
 function Login() {
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleLogin();
+    }, 500);
+  
+    return () => clearTimeout(timer); // Cleanup the timer on component unmount
+  }, []);
+
   const handleLogin = () => {
     const generateRandomString = (length) => {
       const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
@@ -48,31 +59,11 @@ function Login() {
         height="100vh"
       >
         <Typography variant="h4" gutterBottom>
-          Welcome to the Course Management System
+        Redirecting to authorization server...
         </Typography>
-        <Typography variant="h5" gutterBottom>
-          Please login with authorization server
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          onClick={handleLogin}
-          sx={{
-            padding: "12px 24px",
-            borderRadius: "8px",
-            textTransform: "none",
-            fontSize: "18px",
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-            "&:hover": {
-              backgroundColor: "#1565c0",
-            },
-          }}
-        >
-          Login
-        </Button>
       </Box>
     </Container>
+    
   );
 }
 

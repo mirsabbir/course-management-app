@@ -96,6 +96,7 @@ public class Index : PageModel
             }
         }
 
+        return Redirect("http://localhost:3000");
         return RedirectToPage("/Account/Logout/LoggedOut", new { logoutId = LogoutId });
     }
 }
