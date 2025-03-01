@@ -26,6 +26,7 @@ import {
 import { Delete, Edit, People, School } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode to parse the JWT token
 
 function Classes() {
   const [open, setOpen] = useState(false);
@@ -42,7 +43,39 @@ function Classes() {
   const [pageSize, setPageSize] = useState(5); // Number of items per page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
   const [totalCount, setTotalCount] = useState(0); // Total number of items
+  const [userRole, setUserRole] = useState(""); // User role
+  const [userId, setUserId] = useState(""); // User ID
+  const [studentId, setStudentId] = useState(""); // Student ID
   const navigate = useNavigate();
+
+  // Parse JWT token to extract user details
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUserRole(decoded.role);
+      setUserId(decoded.userId);
+    }
+  }, []);
+
+  // Fetch student information if the user is a student
+  useEffect(() => {
+    if (userRole === "Student") {
+      const fetchStudentInfo = async () => {
+        try {
+          const token = localStorage.getItem("access_token");
+          const response = await axios.get("http://localhost:5181/api/students/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setStudentId(response.data.id); // Set the student ID from the response
+        } catch (error) {
+          handleApiError(error);
+          console.error("Error fetching student info:", error);
+        }
+      };
+      fetchStudentInfo();
+    }
+  }, [userRole]);
 
   const handleApiError = (error) => {
     if (error.response) {
@@ -65,12 +98,24 @@ function Classes() {
     setLoading(true);
     try {
       const token = localStorage.getItem("access_token");
-      const response = await axios.get("http://localhost:5181/api/classes", {
+      let apiUrl;
+      if (userRole === "Student") {
+        // Call the student-specific endpoint using the studentId
+        apiUrl = `http://localhost:5181/api/students/${studentId}/classes`;
+      } else {
+        // Call the staff endpoint
+        apiUrl = "http://localhost:5181/api/classes";
+      }
+      const response = await axios.get(apiUrl, {
         headers: { Authorization: `Bearer ${token}` },
         params: { pageNumber, pageSize }, // Add pagination query params
       });
       console.log("API Response:", response.data); // Log the API response
-      setClasses(response.data.data || []); // Set classes from the `data` key
+      if(userRole === "Student"){
+        setClasses(response.data || []); // Set courses from the `data` key
+      } else{
+        setClasses(response.data.data || []); // Set courses from the `data` key
+      }
       setPageNumber(response.data.pageNumber); // Update current page number
       setPageSize(response.data.pageSize); // Update page size
       setTotalCount(response.data.totalCount); // Update total count
@@ -81,11 +126,14 @@ function Classes() {
     } finally {
       setLoading(false);
     }
-  }, [pageNumber, pageSize]);
+  }, [pageNumber, pageSize, userRole, studentId]);
 
   useEffect(() => {
-    fetchClasses();
-  }, [fetchClasses]);
+    if (userRole && (userRole !== "Student" || studentId)) {
+      // Only fetch classes if the user role is set and studentId is available for students
+      fetchClasses();
+    }
+  }, [fetchClasses, userRole, studentId]);
 
   const handleAddOrUpdateClass = async () => {
     try {
@@ -161,16 +209,18 @@ function Classes() {
   return (
     <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Classes
+        {userRole === "Student" ? "See Classes" : "Manage Classes"}
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpen(true)}
-        style={{ marginBottom: "10px" }}
-      >
-        Add Class
-      </Button>
+      {userRole === "Staff" && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpen(true)}
+          style={{ marginBottom: "10px" }}
+        >
+          Add Class
+        </Button>
+      )}
 
       {loading ? (
         <CircularProgress />
@@ -183,9 +233,9 @@ function Classes() {
                 <TableCell><strong>Description</strong></TableCell>
                 <TableCell><strong>Created At</strong></TableCell>
                 <TableCell><strong>Created By</strong></TableCell>
-                <TableCell><strong>Manage Students</strong></TableCell>
-                <TableCell><strong>Manage Courses</strong></TableCell>
-                <TableCell><strong>Actions</strong></TableCell>
+                {userRole === "Staff" && <TableCell><strong>Manage Students</strong></TableCell>}
+                {userRole === "Staff" && <TableCell><strong>Manage Courses</strong></TableCell>}
+                {userRole === "Staff" && <TableCell><strong>Actions</strong></TableCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -195,33 +245,39 @@ function Classes() {
                   <TableCell>{cls.description}</TableCell>
                   <TableCell>{formatCreatedAt(cls.createdAt)}</TableCell>
                   <TableCell>{cls.createdBy}</TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => 
-                                navigate(`/classes/${cls.id}/students`, {
-                                  state: { className: cls.name },
-                                })}>
-                      <People color="primary"></People>
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton onClick={() => 
-                                navigate(`/classes/${cls.id}/courses`, {
-                                  state: { className: cls.name },
-                                })}>
-                      <School color="primary"></School>
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton edge="end" onClick={() => handleEditClass(cls)}>
-                      <Edit color="primary" />
-                    </IconButton>
-                    <IconButton edge="end" onClick={() => {
-                      setClassToDelete(cls.id);
-                      setOpenDeleteDialog(true);
-                    }}>
-                      <Delete color="error" />
-                    </IconButton>
-                  </TableCell>
+                  {userRole === "Staff" && (
+                    <TableCell>
+                      <IconButton onClick={() => 
+                                  navigate(`/classes/${cls.id}/students`, {
+                                    state: { className: cls.name },
+                                  })}>
+                        <People color="primary"></People>
+                      </IconButton>
+                    </TableCell>
+                  )}
+                  {userRole === "Staff" && (
+                    <TableCell>
+                      <IconButton onClick={() => 
+                                  navigate(`/classes/${cls.id}/courses`, {
+                                    state: { className: cls.name },
+                                  })}>
+                        <School color="primary"></School>
+                      </IconButton>
+                    </TableCell>
+                  )}
+                  {userRole === "Staff" && (
+                    <TableCell>
+                      <IconButton edge="end" onClick={() => handleEditClass(cls)}>
+                        <Edit color="primary" />
+                      </IconButton>
+                      <IconButton edge="end" onClick={() => {
+                        setClassToDelete(cls.id);
+                        setOpenDeleteDialog(true);
+                      }}>
+                        <Delete color="error" />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -239,63 +295,67 @@ function Classes() {
           </TableContainer>
       )}
 
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: "10px"
-        }}>
-          <Typography variant="h6" gutterBottom>
-            {editingClass ? "Edit Class" : "Add New Class"}
-          </Typography>
-          <TextField
-            label="Class Name"
-            fullWidth
-            value={className}
-            required="true"
-            onChange={(e) => setClassName(e.target.value)}
-            style={{ marginBottom: "10px" }}
-          />
-          <TextField
-            label="Class Description"
-            fullWidth
-            multiline
-            rows={4}
-            value={classDescription}
-            onChange={(e) => setClassDescription(e.target.value)}
-            style={{ marginBottom: "10px" }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleAddOrUpdateClass}
-          >
-            {editingClass ? "Update Class" : "Add Class"}
-          </Button>
-        </Box>
-      </Modal>
+      {userRole === "Staff" && (
+        <Modal open={open} onClose={handleClose}>
+          <Box sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "10px"
+          }}>
+            <Typography variant="h6" gutterBottom>
+              {editingClass ? "Edit Class" : "Add New Class"}
+            </Typography>
+            <TextField
+              label="Class Name"
+              fullWidth
+              value={className}
+              required="true"
+              onChange={(e) => setClassName(e.target.value)}
+              style={{ marginBottom: "10px" }}
+            />
+            <TextField
+              label="Class Description"
+              fullWidth
+              multiline
+              rows={4}
+              value={classDescription}
+              onChange={(e) => setClassDescription(e.target.value)}
+              style={{ marginBottom: "10px" }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleAddOrUpdateClass}
+            >
+              {editingClass ? "Update Class" : "Add Class"}
+            </Button>
+          </Box>
+        </Modal>
+      )}
 
-      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Delete Class</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this class?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeleteClass} color="error">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {userRole === "Staff" && (
+        <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+          <DialogTitle>Delete Class</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this class?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteDialog} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDeleteClass} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
 
       {/* Error Snackbar */}
       <Snackbar

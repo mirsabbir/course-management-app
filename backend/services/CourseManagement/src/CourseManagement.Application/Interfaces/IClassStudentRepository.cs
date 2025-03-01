@@ -13,6 +13,6 @@ namespace CourseManagement.Application.Interfaces
         Task AddAsync(ClassStudent classStudent);
         Task RemoveAsync(Guid classId, Guid studentId);
         Task<IEnumerable<Student>> GetStudentsByClassIdAsync(Guid classId);
-        Task<IEnumerable<Class>> GetClasssByStudentIdAsync(Guid studentId);
+        Task<IEnumerable<Class>> GetClasssesByStudentIdAsync(Guid studentId);
     }
 }

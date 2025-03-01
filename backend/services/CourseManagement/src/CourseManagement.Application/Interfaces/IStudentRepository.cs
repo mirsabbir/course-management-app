@@ -13,6 +13,7 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<Student>> GetPagedAsync(int pageNumber, int pageSize);
         Task<int> CountAsync();
         Task<Student> GetStudentByIdAsync(Guid studentId);
+        Task<Student> GetStudentByUserIdAsync(Guid userId);
         Task AddStudentAsync(Student student);
         Task UpdateStudentAsync(Student student);
         Task DeleteStudentAsync(Guid studentId);

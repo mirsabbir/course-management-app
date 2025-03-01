@@ -51,7 +51,7 @@ namespace CourseManagement.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Class>> GetClasssByStudentIdAsync(Guid studentId)
+        public async Task<IEnumerable<Class>> GetClasssesByStudentIdAsync(Guid studentId)
         {
             return await _context.ClassStudents
                 .Where(cs => cs.StudentId == studentId)

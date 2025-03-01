@@ -86,5 +86,11 @@ namespace CourseManagement.Infrastructure.Repositories
                 .Where(s => s.FullName.ToLower().Contains(searchTerm) || s.Email.ToLower().Contains(searchTerm))
                 .ToListAsync();
         }
+
+        public async Task<Student> GetStudentByUserIdAsync(Guid userId)
+        {
+            return await _context.Students
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+        }
     }
 }

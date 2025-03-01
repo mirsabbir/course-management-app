@@ -1,7 +1,10 @@
-﻿using CourseManagement.Application.DTOs.Students;
+﻿using CourseManagement.Application.DTOs.Classes;
+using CourseManagement.Application.DTOs.Courses;
+using CourseManagement.Application.DTOs.Students;
 using CourseManagement.Application.Exceptions;
 using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,15 +18,24 @@ namespace CourseManagement.Application.Services
         private readonly IStudentRepository _studentRepository;
         private readonly IUserService _userService;
         private readonly ILogger<StudentService> _logger;
+        private readonly IClassStudentRepository _classStudentRepository;
+        private readonly ICourseStudentRepository _courseStudentRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public StudentService(
             IStudentRepository studentRepository,
             IUserService userService,
-            ILogger<StudentService> logger)
+            ILogger<StudentService> logger,
+            IClassStudentRepository classStudentRepository,
+            ICourseStudentRepository courseStudentRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
             _studentRepository = studentRepository;
             _userService = userService;
             _logger = logger;
+            _classStudentRepository = classStudentRepository;
+            _courseStudentRepository = courseStudentRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<StudentDTO> CreateAsync(CreateStudentDTO createStudentDTO)
@@ -248,6 +260,86 @@ namespace CourseManagement.Application.Services
                 FullName = s.FullName,
                 Email = s.Email,
             }).ToList();
+        }
+
+        public async Task<IEnumerable<CourseDTO>> GetCoursesAsync(Guid studentId)
+        {
+            var student = await _studentRepository.GetStudentByIdAsync(studentId);
+
+            if (student == null)
+                throw new NotFoundException("Student not found.");
+
+            if ((_httpContextAccessor.HttpContext?.User.IsInRole("Student") ?? true)
+                && student.UserId != GetCurrentUserId())
+            {
+                throw new UnauthorizedAccessException("You are not allowed to access.");
+            }
+
+            var courses = await _courseStudentRepository.GetCoursesByStudentIdAsync(studentId);
+
+            return courses.Select(course => new CourseDTO
+            {
+                Id = course.Id,
+                Name = course.Name,
+                Description = course.Description,
+                CreatedAt = course.CreatedAt,
+                CreatedBy = course.CreatedByName
+            });
+        }
+
+        public async Task<IEnumerable<ClassDTO>> GetClassesAsync(Guid studentId)
+        {
+            var student = await _studentRepository.GetStudentByIdAsync(studentId);
+
+            if (student == null)
+                throw new NotFoundException("Student not found.");
+
+            if ((_httpContextAccessor.HttpContext?.User.IsInRole("Student") ?? true)
+                && student.UserId != GetCurrentUserId())
+            {
+                throw new UnauthorizedAccessException("You are not allowed to access.");
+            }
+
+            var classes = await _classStudentRepository.GetClasssesByStudentIdAsync(studentId);
+
+            return classes.Select(classEntity => new ClassDTO
+            {
+                Id = classEntity.Id,
+                Name = classEntity.Name,
+                Description = classEntity.Description,
+                CreatedAt = classEntity.CreatedAt,
+                CreatedBy = classEntity.CreatedByName
+            });
+        }
+
+        public async Task<StudentDTO> GetStudentInfoAsync()
+        {
+            var userId = GetCurrentUserId();
+            var student = await _studentRepository.GetStudentByUserIdAsync(userId);
+            if (student == null)
+            {
+                throw new NotFoundException("Student Not Found");
+            }
+
+            return new StudentDTO
+            {
+                DateOfBirth = student.DateOfBirth,
+                Email = student.Email,
+                FullName = student.FullName,
+                Id = student.Id,
+            };
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
+            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+        }
+        
+
+        private string GetCurrentUserName()
+        {
+            return _httpContextAccessor.HttpContext?.User?.FindFirst("fullName")?.Value ?? string.Empty;
         }
     }
 }

@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import qs from "qs";
+import { AuthContext } from "../Contexts/AuthContext"; // Import the AuthContext
 
 function Callback() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(AuthContext); // Use AuthContext
 
   useEffect(() => {
     const exchangeCodeForToken = async () => {
@@ -22,8 +24,6 @@ function Callback() {
         return;
       }
 
-      console.log("Authorization Code:", code); // Debugging
-
       try {
         const response = await axios.post(
           "http://localhost:5161/connect/token",
@@ -39,34 +39,22 @@ function Callback() {
           }
         );
 
-        const { access_token, refresh_token } = response.data;
+        const { access_token } = response.data;
 
-        // Store tokens securely
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", refresh_token);
-
-        console.log("Access Token:", access_token); // Debugging
+        // Call the login function from AuthContext to update the state
+        login(access_token);
 
         navigate("/courses"); // Redirect after successful login
       } catch (error) {
-        if (error.response) {
-          console.error("Error Response Data:", error.response.data);
-          console.error("Status Code:", error.response.status);
-        } else if (error.request) {
-          console.error("No Response Received:", error.request);
-        } else {
-          console.error("Request Error:", error.message);
-        }
-
+        console.error("Error during token exchange:", error);
         navigate("/"); // Redirect to login on error
       }
     };
 
     exchangeCodeForToken();
-  }, [location, navigate]);
+  }, [location, navigate, login]);
 
   return <div>Loading...</div>;
 }
 
 export default Callback;
-
