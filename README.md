@@ -15,10 +15,13 @@ This project is a web-based Course Management System for a university. It allows
 3. [Installation and Usage](#installation-and-usage)
    - 3.1 [Prerequisites](#prerequisites)
    - 3.2 [Setup](#setup)
-4. [Database Schema](#database-schema)
-   - 4.1 [Course Management Service Schema](#course-management-service-schema)
-   - 4.2 [Authorization Service Schema](#authorization-service-schema)
-6. [Requirement fulfillment](#requirement-fulfillment)
+4. [How to use the application](#how-to-use-the-application)
+   - 4.1 [Prerequisites](#prerequisites-1)
+   - 4.2 [Steps to Use the Application](#steps-to-use-the-application)
+6. [Database Schema](#database-schema)
+   - 5.1 [Course Management Service Schema](#course-management-service-schema)
+   - 5.2 [Authorization Service Schema](#authorization-service-schema)
+7. [Feature And Requirement Fulfillment](#feature-and-requirement-fulfillment)
 
 ## Architecture
 ### Components & Their Responsibilities
@@ -137,6 +140,39 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
    ```
 4. The API should now be accessible at `http://localhost:3000`
 
+## How to Use the Web Application
+
+### Prerequisites
+- Ensure the application is running on your local environment.
+- You have received login credentials via email.
+
+### Steps to Use the Application
+
+1. Open your browser and navigate to **[http://localhost:3000](http://localhost:3000)**.
+2. On the homepage, you will see a banner and a **Login** button (since you are not logged in).
+3. Click the **Login** button. You will be redirected to the **Authorization microservice**.
+   - Enter the credentials you received via email.
+   - This will log you in as a **Staff** user.
+   - After a successful login, you will be redirected back to the **Course Management UI**.
+4. In the top-left corner, you will see a **hamburger menu (drawer)**. Click on it to access the following sections:
+   - **Courses**
+   - **Classes**
+   - **Students**
+5. To create a new student:
+   - Navigate to the **Students** section.
+   - Click the **Create Student** button.
+6. Fill in the student details. **Note:** The student must be at least **6 years old**.
+7. After creation, the student will receive an **email invitation**.
+   - Open the email in an **incognito browser** and follow the instructions to set a password.
+   - Once the password is set, the student can log in to the application.
+
+---
+
+### Additional Notes
+- Ensure that email notifications are received for student account activation.
+- If the login fails, double-check your credentials or reset your password using the provided link in the login page.
+- For any issues, refer to the application logs or contact support.
+
 ## Database Schema
 ### Course Management Service Schema 
 ![Untitled](https://github.com/user-attachments/assets/a1caf7e4-c57f-4d70-8f86-1a73f4d32362)
@@ -145,4 +181,40 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 ![authorization-erd pgerd](https://github.com/user-attachments/assets/ab70e47d-9b14-4100-a169-c5c1a46d7bc1)
 [High Resolution ERD project](https://github.com/mirsabbir/course-management-app/blob/main/docs/authorization-erd.pgerd)
 
-## Requirement fulfillment
+## Feature And Requirement Fulfillment
+The objective of this web application has been successfully met with the following features implemented:
+
+### Authentication & Authorization
+- Users can **log in** to the system and receive an **authenticated token**.
+- All subsequent actions require authentication using the provided token.
+- ![login](https://github.com/user-attachments/assets/22e9fdd5-dfb6-4d3a-8c75-c613b0bb1626)
+
+
+### Staff Functionalities
+- **Create:** Staff members can create **courses, classes, and students**.
+- **Read:** Staff members can view **courses, classes, and students**.
+- **Update:** Staff members can update **courses, classes, and students**.
+- **Delete:** Staff members can delete **courses, classes, and students**.
+- **Enrollment Management:**
+  - Staff members can **enroll students in classes**.
+  - Staff members can **enroll students in a course**, which automatically enrolls them in all associated classes.
+- **View & Tracking:**
+  - Staff members can view **all students enrolled in a given course**.
+  - Staff members can view **all students in a given class**.
+  - Staff members can view **all classes under a specific course**.
+  - Staff members can view **all courses associated with a class**.
+  - Staff members can track **who assigned a student to a class and when**.
+  - ![ManageCourses](https://github.com/user-attachments/assets/95d2a58d-10f5-46be-871c-1d66647feaf3)
+  - ![ManageClasses](https://github.com/user-attachments/assets/0ccb77a3-1d86-4e38-91f6-d91d960d0fa9)
+  - ![manage students](https://github.com/user-attachments/assets/6fa03e87-1805-44ca-9384-19e5cb3f6f2b)
+
+### Student Functionalities
+- **View Enrollments:** Students can view their **enrolled classes and courses**.
+- **Classmate Visibility:** Students can see the names of **other students in their classes**.
+- ![viewcourses](https://github.com/user-attachments/assets/0d71c5b6-0ade-4f56-b5e7-b1e9887911e2)
+- ![classes](https://github.com/user-attachments/assets/67eeb7f7-f5d9-4a16-b7f3-2ad598040d38)
+
+### Conclusion
+All the specified requirements have been implemented successfully, ensuring a fully functional and robust course management system.
+
+
