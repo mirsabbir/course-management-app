@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CourseManagement.Application.DTOs.Students
 {
-    public class StudentDTO
+    public class AssignedStudentDTO
     {
         public Guid Id { get; set; }
         public string FullName { get; set; }
@@ -14,5 +14,7 @@ namespace CourseManagement.Application.DTOs.Students
         public DateTime DateOfBirth { get; set; }
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
+        public DateTime AssignedAt { get; set; }
+        public string AssignedBy { get; set; }
     }
 }

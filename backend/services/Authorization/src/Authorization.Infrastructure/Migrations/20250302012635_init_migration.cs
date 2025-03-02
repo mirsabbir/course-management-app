@@ -188,12 +188,24 @@ namespace Authorization.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DateOfBirth", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "1f8211b7-f591-4453-92a9-a8bcc0122903", 0, "adcsdcsdc25d1fv5fd", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "staff@staff.com", true, "", false, null, "STAFF@STAFF.COM", "STAFF@STAFF.COM", "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==", null, false, "bhdbcvhdbchdbhjkbs15c1sdf51", false, "staff@staff.com" });
+                values: new object[,]
+                {
+                    { "2e17f50a-9541-4731-951f-a6755db80eeb", 0, "adcsdcsdc25d1fv5fd", new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc), "olivier@example.com", true, "Olivier Lefebvre", false, null, "OLIVIER@EXAMPLE.COM", "OLIVIER@EXAMPLE.COM", "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==", null, false, "bhdbcvhdbchdbhjkbs15c1sdf51", false, "olivier@example.com" },
+                    { "3e3c9543-d97c-4332-b177-850073f90d01", 0, "adcsdcsdc25d1fv5fd", new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc), "mahamud@example.com", true, "Mahamud Shahjahan", false, null, "MAHAMUD@EXAMPLE.COM", "MAHAMUD@EXAMPLE.COM", "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==", null, false, "bhdbcvhdbchdbhjkbs15c1sdf51", false, "mahamud@example.com" },
+                    { "833420e4-2b6c-4db4-9a5e-14b52f38133d", 0, "adcsdcsdc25d1fv5fd", new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc), "mirsabbiralam@gmail.com", true, "Mir Sabbir", false, null, "MIRSABBIRALAM@GMAIL.COM", "MIRSABBIRALAM@GMAIL.COM", "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==", null, false, "bhdbcvhdbchdbhjkbs15c1sdf51", false, "mirsabbiralam@gmail.com" },
+                    { "de454825-5ab5-429b-b573-f39342ee72c1", 0, "adcsdcsdc25d1fv5fd", new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc), "andrew@example.com", true, "Andrew Crawley", false, null, "ANDREW@EXAMPLE.COM", "ANDREW@EXAMPLE.COM", "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==", null, false, "bhdbcvhdbchdbhjkbs15c1sdf51", false, "andrew@example.com" }
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b", "1f8211b7-f591-4453-92a9-a8bcc0122903" });
+                values: new object[,]
+                {
+                    { "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b", "2e17f50a-9541-4731-951f-a6755db80eeb" },
+                    { "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b", "3e3c9543-d97c-4332-b177-850073f90d01" },
+                    { "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b", "833420e4-2b6c-4db4-9a5e-14b52f38133d" },
+                    { "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b", "de454825-5ab5-429b-b573-f39342ee72c1" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

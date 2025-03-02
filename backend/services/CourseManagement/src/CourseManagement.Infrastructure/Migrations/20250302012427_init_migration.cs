@@ -74,6 +74,7 @@ namespace CourseManagement.Infrastructure.Migrations
                 {
                     ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     CourseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },
@@ -103,6 +104,7 @@ namespace CourseManagement.Infrastructure.Migrations
                 {
                     ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     StudentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },
@@ -132,6 +134,7 @@ namespace CourseManagement.Infrastructure.Migrations
                 {
                     CourseId = table.Column<Guid>(type: "uuid", nullable: false),
                     StudentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AssignedById = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedByName = table.Column<string>(type: "text", nullable: false)
                 },

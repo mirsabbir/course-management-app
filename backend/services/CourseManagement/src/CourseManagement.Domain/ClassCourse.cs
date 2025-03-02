@@ -14,6 +14,7 @@ namespace CourseManagement.Domain
         public Guid CourseId { get; set; }
         public virtual Course Course { get; set; }
 
+        public DateTime AssignedAt { get; set; }
         public Guid AssignedById { get; set; }
         public required string AssignedByName { get; set; }
     }

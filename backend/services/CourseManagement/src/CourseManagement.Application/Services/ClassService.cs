@@ -155,7 +155,8 @@ namespace CourseManagement.Application.Services
                     ClassId = classEnrollmentDTO.ClassId,
                     StudentId = classEnrollmentDTO.StudentId,
                     AssignedById = GetCurrentUserId(),
-                    AssignedByName = GetCurrentUserName()
+                    AssignedByName = GetCurrentUserName(),
+                    AssignedAt = DateTime.UtcNow,
                 };
 
                 await _classStudentRepository.AddAsync(classStudent);
@@ -231,7 +232,7 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<CourseDTO>> GetCoursesAsync(Guid classId)
+        public async Task<IEnumerable<AssignedCourseDTO>> GetCoursesAsync(Guid classId)
         {
             _logger.LogInformation("Fetching courses for class with ID {ClassId}", classId);
 
@@ -245,15 +246,17 @@ namespace CourseManagement.Application.Services
                     throw new NotFoundException("Class not found.");
                 }
 
-                var courses = await _courseRepository.GetByClassIdAsync(classId);
+                var classCourses = await _courseRepository.GetByClassIdAsync(classId);
 
-                var result = courses.Select(c => new CourseDTO
+                var result = classCourses.Select(cc => new AssignedCourseDTO
                 {
-                    Id = c.Id,
-                    Name = c.Name,
-                    CreatedBy = c.CreatedByName,
-                    CreatedAt = c.CreatedAt,
-                    Description = c.Description,
+                    Id = cc.Course.Id,
+                    Name = cc.Course.Name,
+                    CreatedBy = cc.Course.CreatedByName,
+                    CreatedAt = cc.Course.CreatedAt,
+                    Description = cc.Course.Description,
+                    AssignedAt = cc.AssignedAt,
+                    AssignedBy = cc.AssignedByName
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {CourseCount} courses for class with ID {ClassId}", result.Count, classId);
@@ -266,7 +269,7 @@ namespace CourseManagement.Application.Services
             }
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid classId)
+        public async Task<IEnumerable<AssignedStudentDTO>> GetStudentsAsync(Guid classId)
         {
             _logger.LogInformation("Fetching students for class with ID {ClassId}", classId);
 
@@ -282,12 +285,16 @@ namespace CourseManagement.Application.Services
 
                 var enrolledStudents = await _classStudentRepository.GetStudentsByClassIdAsync(classId);
 
-                var result = enrolledStudents.Select(s => new StudentDTO
+                var result = enrolledStudents.Select(cs => new AssignedStudentDTO
                 {
-                    Id = s.Id,
-                    Email = s.Email,
-                    DateOfBirth = s.DateOfBirth,
-                    FullName = s.FullName
+                    Id = cs.Student.Id,
+                    Email = cs.Student.Email,
+                    DateOfBirth = cs.Student.DateOfBirth,
+                    FullName = cs.Student.FullName,
+                    CreatedAt = cs.Student.CreatedAt,
+                    CreatedBy = cs.Student.CreatedByName,
+                    AssignedAt = cs.AssignedAt,
+                    AssignedBy = cs.AssignedByName
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {StudentCount} students for class with ID {ClassId}", result.Count, classId);

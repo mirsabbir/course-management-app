@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Security.Cryptography;
 using Log = Serilog.Log;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+RSA rsa = GetRsaSigningKeyFromConfig(builder);
+
 // Duende Identity Server configuration
 builder.Services.AddIdentityServer(options =>
 {
@@ -56,7 +59,7 @@ builder.Services.AddIdentityServer(options =>
 .AddInMemoryClients(Config.Clients)
 .AddAspNetIdentity<User>()
 .AddProfileService<ProfileService>()
-.AddDeveloperSigningCredential();
+.AddSigningCredential(new RsaSecurityKey(rsa), "RS256");
 
 // login/invitation/concent page UI
 builder.Services.AddRazorPages();
@@ -85,7 +88,7 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuers = [ "http://localhost:5161", "http://authorization-api:8080" ],
+        ValidIssuers = ["http://localhost:5161", "http://authorization-api:8080"],
         ValidateAudience = true,
         ValidAudiences = ["http://localhost:5161/resources", "http://authorization-api:8080/resources"],
         ValidateLifetime = true,
@@ -181,3 +184,15 @@ app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
+
+static RSA GetRsaSigningKeyFromConfig(WebApplicationBuilder builder)
+{
+    // Read the Base64-encoded private key from configuration
+    var privateKeyBase64 = builder.Configuration["TokenSigningRsaKey"];
+    var privateKeyBytes = Convert.FromBase64String(privateKeyBase64);
+
+    // Create an RSA key from the private key bytes
+    var rsa = RSA.Create();
+    rsa.ImportRSAPrivateKey(privateKeyBytes, out _);
+    return rsa;
+}

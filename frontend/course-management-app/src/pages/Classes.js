@@ -40,7 +40,7 @@ function Classes() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(7);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [studentId, setStudentId] = useState("");
@@ -196,7 +196,7 @@ function Classes() {
   return (
     <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
-        {userRole === "Student" ? "See Classes" : "Manage Classes"}
+        {userRole === "Student" ? "View All Classes" : "Manage Classes"}
       </Typography>
       {userRole === "Staff" && (
         <Button
@@ -218,8 +218,9 @@ function Classes() {
               <TableRow>
                 <TableCell><strong>Name</strong></TableCell>
                 <TableCell><strong>Description</strong></TableCell>
-                <TableCell><strong>Created At</strong></TableCell>
-                <TableCell><strong>Created By</strong></TableCell>
+                {userRole === "Student" && <TableCell><strong>Course Name</strong></TableCell>}
+                {userRole === "Staff" && <TableCell><strong>Created At</strong></TableCell>}
+                {userRole === "Staff" && <TableCell><strong>Created By</strong></TableCell>}
                 {userRole === "Staff" && <TableCell><strong>Manage Students</strong></TableCell>}
                 {userRole === "Staff" && <TableCell><strong>Manage Courses</strong></TableCell>}
                 {userRole === "Staff" && <TableCell><strong>Actions</strong></TableCell>}
@@ -231,8 +232,9 @@ function Classes() {
                 <TableRow key={cls.id}>
                   <TableCell>{cls.name}</TableCell>
                   <TableCell>{cls.description}</TableCell>
-                  <TableCell>{formatCreatedAt(cls.createdAt)}</TableCell>
-                  <TableCell>{cls.createdBy}</TableCell>
+                  {userRole === "Student" && <TableCell>{cls.courseName}</TableCell>}
+                  {userRole === "Staff" && <TableCell>{formatCreatedAt(cls.createdAt)}</TableCell>}
+                  {userRole === "Staff" && <TableCell>{cls.createdBy}</TableCell>}
                   {userRole === "Staff" && (
                     <TableCell>
                       <IconButton onClick={() => 

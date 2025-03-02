@@ -66,10 +66,11 @@ namespace CourseManagement.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Class>> GetByCourseIdAsync(Guid courseId)
+        public async Task<IEnumerable<ClassCourse>> GetByCourseIdAsync(Guid courseId)
         {
-            return await _context.Classes
-                .Where(c => c.ClassCourses.Any(cc => cc.CourseId == courseId))
+            return await _context.ClassCourses
+                .Include(cc => cc.Class)
+                .Where(cc => cc.CourseId == courseId)
                 .ToListAsync();
         }
 

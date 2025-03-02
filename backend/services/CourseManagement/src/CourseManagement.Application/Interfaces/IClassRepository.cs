@@ -12,7 +12,7 @@ namespace CourseManagement.Application.Interfaces
         Task<IEnumerable<Class>> GetAllAsync();
         Task<IEnumerable<Class>> GetPagedAsync(int pageNumber, int pageSize);
         Task<int> CountAsync();
-        Task<IEnumerable<Class>> GetByCourseIdAsync(Guid courseId);
+        Task<IEnumerable<ClassCourse>> GetByCourseIdAsync(Guid courseId);
         Task<Class> GetByIdAsync(Guid classId);
         Task AddAsync(Class @class);
         Task UpdateAsync(Class @class);

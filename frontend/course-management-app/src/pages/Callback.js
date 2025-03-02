@@ -44,7 +44,7 @@ function Callback() {
         // Call the login function from AuthContext to update the state
         login(access_token);
 
-        navigate("/courses"); // Redirect after successful login
+        navigate("/"); // Redirect after successful login
       } catch (error) {
         console.error("Error during token exchange:", error);
         navigate("/"); // Redirect to login on error

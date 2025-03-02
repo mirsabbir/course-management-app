@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CourseManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250227144936_init_migration")]
+    [Migration("20250302012427_init_migration")]
     partial class init_migration
     {
         /// <inheritdoc />
@@ -65,6 +65,9 @@ namespace CourseManagement.Infrastructure.Migrations
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");
 
@@ -86,6 +89,9 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");
@@ -139,6 +145,9 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");

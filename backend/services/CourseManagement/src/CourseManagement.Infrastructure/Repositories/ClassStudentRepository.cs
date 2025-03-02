@@ -1,4 +1,5 @@
-﻿using CourseManagement.Application.Interfaces;
+﻿using CourseManagement.Application.DTOs.Students;
+using CourseManagement.Application.Interfaces;
 using CourseManagement.Domain;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -42,23 +43,43 @@ namespace CourseManagement.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Student>> GetStudentsByClassIdAsync(Guid classId)
+        public async Task<IEnumerable<ClassStudent>> GetStudentsByClassIdAsync(Guid classId)
         {
             return await _context.ClassStudents
                 .Where(cs => cs.ClassId == classId)
                 .Include(cs => cs.Student) // Load student details
-                .Select(cs => cs.Student)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Class>> GetClasssesByStudentIdAsync(Guid studentId)
+        public async Task<IEnumerable<ClassStudent>> GetClasssesByStudentIdAsync(Guid studentId)
         {
             return await _context.ClassStudents
-                .Where(cs => cs.StudentId == studentId)
                 .Include(cs => cs.Class) // Load class details
-                .Select(cs => cs.Class)
+                .Where(cs => cs.StudentId == studentId)
                 .ToListAsync();
         }
-    }
 
+        public async Task<IEnumerable<Student>> GetStudentsDirectlyOrIndirectlyAssignedToClassAsync(Guid classId, Guid studentId)
+        {
+            // Get students directly assigned to the class
+            var directClassStudents = from cs in _context.ClassStudents
+                                      join s in _context.Students on cs.StudentId equals s.Id
+                                      where cs.ClassId == classId
+                                      select s;
+
+            // Get students assigned via courses
+            var courseStudents = from cs in _context.CourseStudents
+                                 join s in _context.Students on cs.StudentId equals s.Id
+                                 join cc in _context.ClassCourses on cs.CourseId equals cc.CourseId
+                                 where cc.ClassId == classId
+                                 select s;
+
+            // Union the results and exclude the requesting student
+            var allStudents = directClassStudents
+                .Union(courseStudents) // Merge both direct and course-based students
+                .Where(s => s.Id != studentId); // Exclude the requesting student
+
+            return await allStudents.ToListAsync();
+        }
+    }
 }

@@ -169,7 +169,7 @@ function CourseStudent() {
         Back to Courses
       </Button>
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Students for Course Name: {courseName}
+        Manage Students for Course: {courseName}
       </Typography>
 
       {loading ? (
@@ -183,8 +183,8 @@ function CourseStudent() {
                   <TableCell><strong>Full Name</strong></TableCell>
                   <TableCell><strong>Email</strong></TableCell>
                   <TableCell><strong>Date of Birth</strong></TableCell>
-                  <TableCell><strong>Created At</strong></TableCell>
-                  <TableCell><strong>Created By</strong></TableCell>
+                  <TableCell><strong>Assigned At</strong></TableCell>
+                  <TableCell><strong>Assigned By</strong></TableCell>
                   <TableCell><strong>Actions</strong></TableCell>
                 </TableRow>
               </TableHead>
@@ -194,8 +194,8 @@ function CourseStudent() {
                     <TableCell>{student.fullName}</TableCell>
                     <TableCell>{student.email}</TableCell>
                     <TableCell>{student.dateOfBirth}</TableCell>
-                    <TableCell>{formatCreatedAt(student.createdAt)}</TableCell>
-                    <TableCell>{student.createdBy}</TableCell>
+                    <TableCell>{formatCreatedAt(student.assignedAt)}</TableCell>
+                    <TableCell>{student.assignedBy}</TableCell>
                     <TableCell>
                       <IconButton
                         edge="end"

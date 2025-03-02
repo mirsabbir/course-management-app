@@ -91,7 +91,7 @@ namespace CourseManagement.API.Controllers
         [HttpGet("{studentId}/classes")]
         public async Task<IActionResult> GetClasses(Guid studentId)
         {
-            var classes = await _studentService.GetClassesAsync(studentId);
+            var classes = await _studentService.GetAllAssignedClassesAsync(studentId);
             return Ok(classes);
         }
 

@@ -61,7 +61,7 @@ function Classmates() {
         }
       );
       console.log("API Response:", response.data); // Log the API response
-      setClassmates(response.data.data || []); // Set classmates from the `data` key
+      setClassmates(response.data || []); // Set classmates from the `data` key
       setPageNumber(response.data.pageNumber); // Update current page number
       setPageSize(response.data.pageSize); // Update page size
       setTotalCount(response.data.totalCount); // Update total count
@@ -101,7 +101,6 @@ function Classmates() {
               <TableRow>
                 <TableCell><strong>Full Name</strong></TableCell>
                 <TableCell><strong>Email</strong></TableCell>
-                <TableCell><strong>ID</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -109,11 +108,11 @@ function Classmates() {
                 <TableRow key={classmate.id}>
                   <TableCell>{classmate.fullName}</TableCell>
                   <TableCell>{classmate.email}</TableCell>
-                  <TableCell>{classmate.id}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
 
           {/* Pagination Controls */}
           <Box display="flex" justifyContent="center" mt={2}>

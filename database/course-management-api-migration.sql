@@ -14,7 +14,7 @@ START TRANSACTION;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
         IF NOT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = 'CourseManagement') THEN
             CREATE SCHEMA "CourseManagement";
         END IF;
@@ -23,7 +23,7 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."Classes" (
         "Id" uuid NOT NULL,
         "Name" character varying(200) NOT NULL,
@@ -38,7 +38,7 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."Courses" (
         "Id" uuid NOT NULL,
         "Name" character varying(200) NOT NULL,
@@ -53,7 +53,7 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."Students" (
         "Id" uuid NOT NULL,
         "FullName" character varying(200) NOT NULL,
@@ -70,10 +70,11 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."ClassCourses" (
         "ClassId" uuid NOT NULL,
         "CourseId" uuid NOT NULL,
+        "AssignedAt" timestamp with time zone NOT NULL,
         "AssignedById" uuid NOT NULL,
         "AssignedByName" text NOT NULL,
         CONSTRAINT "PK_ClassCourses" PRIMARY KEY ("ClassId", "CourseId"),
@@ -85,10 +86,11 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."ClassEnrollments" (
         "ClassId" uuid NOT NULL,
         "StudentId" uuid NOT NULL,
+        "AssignedAt" timestamp with time zone NOT NULL,
         "AssignedById" uuid NOT NULL,
         "AssignedByName" text NOT NULL,
         CONSTRAINT "PK_ClassEnrollments" PRIMARY KEY ("ClassId", "StudentId"),
@@ -100,10 +102,11 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE TABLE "CourseManagement"."CourseEnrollments" (
         "CourseId" uuid NOT NULL,
         "StudentId" uuid NOT NULL,
+        "AssignedAt" timestamp with time zone NOT NULL,
         "AssignedById" uuid NOT NULL,
         "AssignedByName" text NOT NULL,
         CONSTRAINT "PK_CourseEnrollments" PRIMARY KEY ("CourseId", "StudentId"),
@@ -115,30 +118,30 @@ END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE INDEX "IX_ClassCourses_CourseId" ON "CourseManagement"."ClassCourses" ("CourseId");
     END IF;
 END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE INDEX "IX_ClassEnrollments_StudentId" ON "CourseManagement"."ClassEnrollments" ("StudentId");
     END IF;
 END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     CREATE INDEX "IX_CourseEnrollments_StudentId" ON "CourseManagement"."CourseEnrollments" ("StudentId");
     END IF;
 END $EF$;
 
 DO $EF$
 BEGIN
-    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250227144936_init_migration') THEN
+    IF NOT EXISTS(SELECT 1 FROM "CourseManagement"."__EFMigrationsHistory" WHERE "MigrationId" = '20250302012427_init_migration') THEN
     INSERT INTO "CourseManagement"."__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-    VALUES ('20250227144936_init_migration', '9.0.2');
+    VALUES ('20250302012427_init_migration', '9.0.2');
     END IF;
 END $EF$;
 COMMIT;

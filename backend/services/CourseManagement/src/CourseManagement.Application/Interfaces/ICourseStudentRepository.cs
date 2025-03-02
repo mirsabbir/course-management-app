@@ -12,7 +12,7 @@ namespace CourseManagement.Application.Interfaces
         Task<bool> ExistsAsync(Guid courseId, Guid studentId);
         Task AddAsync(CourseStudent courseStudent);
         Task RemoveAsync(Guid courseId, Guid studentId);
-        Task<IEnumerable<Student>> GetStudentsByCourseIdAsync(Guid courseId);
-        Task<IEnumerable<Course>> GetCoursesByStudentIdAsync(Guid studentId);
+        Task<IEnumerable<CourseStudent>> GetStudentsByCourseIdAsync(Guid courseId);
+        Task<IEnumerable<CourseStudent>> GetCoursesByStudentIdAsync(Guid studentId);
     }
 }

@@ -24,7 +24,7 @@ import {
   Autocomplete,
   Box,
 } from "@mui/material";
-import { Book, Edit, Delete, LinkOff } from "@mui/icons-material";
+import { LinkOff } from "@mui/icons-material";
 
 function ClassCourse() {
   const { classId } = useParams(); // Access the classId parameter
@@ -169,7 +169,7 @@ function ClassCourse() {
         Back to Classes
       </Button>
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Courses for Class Name: {className}
+        Manage Courses for Class: {className}
       </Typography>
 
       {loading ? (
@@ -182,8 +182,8 @@ function ClassCourse() {
                 <TableRow>
                   <TableCell><strong>Name</strong></TableCell>
                   <TableCell><strong>Description</strong></TableCell>
-                  <TableCell><strong>Created At</strong></TableCell>
-                  <TableCell><strong>Created By</strong></TableCell>
+                  <TableCell><strong>Assigned At</strong></TableCell>
+                  <TableCell><strong>Assigned By</strong></TableCell>
                   <TableCell><strong>Actions</strong></TableCell>
                 </TableRow>
               </TableHead>
@@ -192,8 +192,8 @@ function ClassCourse() {
                   <TableRow key={course.id}>
                     <TableCell>{course.name}</TableCell>
                     <TableCell>{course.description}</TableCell>
-                    <TableCell>{formatCreatedAt(course.createdAt)}</TableCell>
-                    <TableCell>{course.createdBy}</TableCell>
+                    <TableCell>{formatCreatedAt(course.assignedAt)}</TableCell>
+                    <TableCell>{course.assignedBy}</TableCell>
                     <TableCell>
                       <IconButton
                         edge="end"

@@ -21,6 +21,7 @@ namespace CourseManagement.Application.Services
         private readonly IClassStudentRepository _classStudentRepository;
         private readonly ICourseStudentRepository _courseStudentRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IClassRepository _classRepository;
 
         public StudentService(
             IStudentRepository studentRepository,
@@ -28,7 +29,8 @@ namespace CourseManagement.Application.Services
             ILogger<StudentService> logger,
             IClassStudentRepository classStudentRepository,
             ICourseStudentRepository courseStudentRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IClassRepository classRepository)
         {
             _studentRepository = studentRepository;
             _userService = userService;
@@ -36,6 +38,7 @@ namespace CourseManagement.Application.Services
             _classStudentRepository = classStudentRepository;
             _courseStudentRepository = courseStudentRepository;
             _httpContextAccessor = httpContextAccessor;
+            _classRepository = classRepository;
         }
 
         public async Task<StudentDTO> CreateAsync(CreateStudentDTO createStudentDTO)
@@ -82,7 +85,9 @@ namespace CourseManagement.Application.Services
                 Email = createStudentDTO.Email,
                 DateOfBirth = createStudentDTO.DateOfBirth.ToUniversalTime(),
                 UserId = Guid.Parse(userId), // Convert string userId to Guid
-                CreatedByName = string.Empty
+                CreatedByName = GetCurrentUserName(),
+                CreatedAt = DateTime.UtcNow,
+                CreatedById = GetCurrentUserId(),
             };
 
             // Log the new student creation
@@ -177,6 +182,8 @@ namespace CourseManagement.Application.Services
                     Email = s.Email,
                     FullName = s.FullName,
                     DateOfBirth = s.DateOfBirth,
+                    CreatedAt = s.CreatedAt,
+                    CreatedBy = s.CreatedByName,
                 }).ToList();
 
                 _logger.LogInformation("Successfully fetched {StudentCount} students", result.Count);
@@ -279,15 +286,15 @@ namespace CourseManagement.Application.Services
 
             return courses.Select(course => new CourseDTO
             {
-                Id = course.Id,
-                Name = course.Name,
-                Description = course.Description,
-                CreatedAt = course.CreatedAt,
-                CreatedBy = course.CreatedByName
+                Id = course.Course.Id,
+                Name = course.Course.Name,
+                Description = course.Course.Description,
+                CreatedAt = course.Course.CreatedAt,
+                CreatedBy = course.Course.CreatedByName
             });
         }
 
-        public async Task<IEnumerable<ClassDTO>> GetClassesAsync(Guid studentId)
+        public async Task<IEnumerable<AssignedClassForStudentDTO>> GetAllAssignedClassesAsync(Guid studentId)
         {
             var student = await _studentRepository.GetStudentByIdAsync(studentId);
 
@@ -300,17 +307,60 @@ namespace CourseManagement.Application.Services
                 throw new UnauthorizedAccessException("You are not allowed to access.");
             }
 
-            var classes = await _classStudentRepository.GetClasssesByStudentIdAsync(studentId);
+            var classAssignments = new Dictionary<Guid, AssignedClassForStudentDTO>();
 
-            return classes.Select(classEntity => new ClassDTO
+            // Get explicitly assigned classes
+            var directClasses = await _classStudentRepository.GetClasssesByStudentIdAsync(studentId);
+            foreach (var cs in directClasses)
             {
-                Id = classEntity.Id,
-                Name = classEntity.Name,
-                Description = classEntity.Description,
-                CreatedAt = classEntity.CreatedAt,
-                CreatedBy = classEntity.CreatedByName
-            });
+                if (!classAssignments.ContainsKey(cs.Class.Id))
+                {
+                    classAssignments[cs.Class.Id] = new AssignedClassForStudentDTO
+                    {
+                        Id = cs.Class.Id,
+                        Name = cs.Class.Name,
+                        Description = cs.Class.Description,
+                        CourseName = "" // Direct assignments have no course name
+                    };
+                }
+            }
+
+            // Get courses assigned to the student
+            var courseStudents = await _courseStudentRepository.GetCoursesByStudentIdAsync(studentId);
+            foreach (var courseStudent in courseStudents)
+            {
+                var classCourses = await _classRepository.GetByCourseIdAsync(courseStudent.Course.Id);
+                foreach (var classCourse in classCourses)
+                {
+                    if (!classAssignments.TryGetValue(classCourse.ClassId, out var assignedClass))
+                    {
+                        // First time adding this class
+                        classAssignments[classCourse.ClassId] = new AssignedClassForStudentDTO
+                        {
+                            Id = classCourse.ClassId,
+                            Name = classCourse.Class.Name,
+                            Description = classCourse.Class.Description,
+                            CourseName = courseStudent.Course.Name
+                        };
+                    }
+                    else
+                    {
+                        // Concatenate course names if class is assigned through multiple courses
+                        if (!string.IsNullOrEmpty(assignedClass.CourseName))
+                        {
+                            assignedClass.CourseName += $", {courseStudent.Course.Name}";
+                        }
+                        else
+                        {
+                            assignedClass.CourseName = courseStudent.Course.Name;
+                        }
+                    }
+                }
+            }
+
+            return classAssignments.Values;
         }
+
 
         public async Task<StudentDTO> GetStudentInfoAsync()
         {
@@ -333,19 +383,16 @@ namespace CourseManagement.Application.Services
         public async Task<IEnumerable<StudentDTO>> GetClassmates(Guid studentId, Guid classId)
         {
             // Fetch all students in the given class
-            var students = await _classStudentRepository.GetStudentsByClassIdAsync(classId);
+            var classmates = await _classStudentRepository.GetStudentsDirectlyOrIndirectlyAssignedToClassAsync(classId, studentId);
 
             // Filter out the requesting student
-            var classmates = students
-                .Where(student => student.Id != studentId)
-                .Select(student => new StudentDTO
+            return classmates
+                .Select(classmate => new StudentDTO
                 {
-                    Id = student.Id,
-                    FullName = student.FullName,
-                    Email = student.Email // Assuming StudentDTO has Email
+                    Id = classmate.Id,
+                    FullName = classmate.FullName,
+                    Email = classmate.Email
                 });
-
-            return classmates;
         }
 
         private Guid GetCurrentUserId()

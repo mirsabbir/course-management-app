@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import {
@@ -24,7 +24,8 @@ import {
   Autocomplete,
   Box,
 } from "@mui/material";
-import { Book, Edit, Delete, LinkOff } from "@mui/icons-material";
+import { LinkOff } from "@mui/icons-material";
+import { AuthContext } from "../Contexts/AuthContext"; // Import the AuthContext
 
 function CourseClass() {
   const { courseId } = useParams(); // Access the courseId parameter
@@ -40,6 +41,9 @@ function CourseClass() {
   const [selectedClass, setSelectedClass] = useState(null);
   const location = useLocation();
   const { courseName } = location.state || {};
+
+    // Use AuthContext to get userRole and userId
+    const { userRole, userId } = useContext(AuthContext);
 
   const handleApiError = (error) => {
     if (error.response) {
@@ -168,9 +172,16 @@ function CourseClass() {
       >
         Back to Courses
       </Button>
+      
+      {userRole === "Staff" && 
       <Typography variant="h4" gutterBottom textAlign="center">
-        Manage Classes for Course Name: {courseName}
-      </Typography>
+        Manage Classes for Course: {courseName}
+      </Typography>}
+
+      {userRole === "Student" && 
+      <Typography variant="h4" gutterBottom textAlign="center">
+        View Classes for Course: {courseName}
+      </Typography>}
 
       {loading ? (
         <CircularProgress />
@@ -182,9 +193,9 @@ function CourseClass() {
                 <TableRow>
                   <TableCell><strong>Name</strong></TableCell>
                   <TableCell><strong>Description</strong></TableCell>
-                  <TableCell><strong>Created At</strong></TableCell>
-                  <TableCell><strong>Created By</strong></TableCell>
-                  <TableCell><strong>Actions</strong></TableCell>
+                  <TableCell><strong>Added At</strong></TableCell>
+                  {userRole === "Staff" && <TableCell><strong>Added By</strong></TableCell>}
+                  {userRole === "Staff" && <TableCell><strong>Actions</strong></TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -192,9 +203,9 @@ function CourseClass() {
                   <TableRow key={classItem.id}>
                     <TableCell>{classItem.name}</TableCell>
                     <TableCell>{classItem.description}</TableCell>
-                    <TableCell>{formatCreatedAt(classItem.createdAt)}</TableCell>
-                    <TableCell>{classItem.createdBy}</TableCell>
-                    <TableCell>
+                    <TableCell>{formatCreatedAt(classItem.assignedAt)}</TableCell>
+                    {userRole === "Staff" && <TableCell>{classItem.assignedBy}</TableCell>}
+                    {userRole === "Staff" && <TableCell>
                       <IconButton
                         edge="end"
                         onClick={() => {
@@ -205,6 +216,7 @@ function CourseClass() {
                         <LinkOff color="error" />
                       </IconButton>
                     </TableCell>
+                    }
                   </TableRow>
                 ))}
               </TableBody>
@@ -212,6 +224,7 @@ function CourseClass() {
           </TableContainer>
 
           {/* Search and Enroll Section */}
+          { userRole === "Staff" &&
           <Box mt={4}>
             <Typography variant="h6" gutterBottom>
               Enroll a Class
@@ -242,9 +255,11 @@ function CourseClass() {
               Enroll Class
             </Button>
           </Box>
+          }
         </>
       )}
 
+      
       {/* Unenroll Confirmation Dialog */}
       <Dialog open={openUnenrollDialog} onClose={() => setOpenUnenrollDialog(false)}>
         <DialogTitle>Unenroll Class</DialogTitle>

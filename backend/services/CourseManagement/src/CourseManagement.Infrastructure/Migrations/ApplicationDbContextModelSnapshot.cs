@@ -62,6 +62,9 @@ namespace CourseManagement.Infrastructure.Migrations
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");
 
@@ -83,6 +86,9 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");
@@ -136,6 +142,9 @@ namespace CourseManagement.Infrastructure.Migrations
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("AssignedById")
                         .HasColumnType("uuid");

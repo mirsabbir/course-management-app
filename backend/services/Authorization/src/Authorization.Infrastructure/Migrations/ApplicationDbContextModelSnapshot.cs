@@ -137,21 +137,75 @@ namespace Authorization.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1f8211b7-f591-4453-92a9-a8bcc0122903",
+                            Id = "2e17f50a-9541-4731-951f-a6755db80eeb",
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "adcsdcsdc25d1fv5fd",
                             DateOfBirth = new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "staff@staff.com",
+                            Email = "olivier@example.com",
                             EmailConfirmed = true,
-                            FullName = "Staff",
+                            FullName = "Olivier Lefebvre",
                             LockoutEnabled = false,
-                            NormalizedEmail = "STAFF@STAFF.COM",
-                            NormalizedUserName = "STAFF@STAFF.COM",
+                            NormalizedEmail = "OLIVIER@EXAMPLE.COM",
+                            NormalizedUserName = "OLIVIER@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "bhdbcvhdbchdbhjkbs15c1sdf51",
                             TwoFactorEnabled = false,
-                            UserName = "staff@staff.com"
+                            UserName = "olivier@example.com"
+                        },
+                        new
+                        {
+                            Id = "3e3c9543-d97c-4332-b177-850073f90d01",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "adcsdcsdc25d1fv5fd",
+                            DateOfBirth = new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "mahamud@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Mahamud Shahjahan",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "MAHAMUD@EXAMPLE.COM",
+                            NormalizedUserName = "MAHAMUD@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bhdbcvhdbchdbhjkbs15c1sdf51",
+                            TwoFactorEnabled = false,
+                            UserName = "mahamud@example.com"
+                        },
+                        new
+                        {
+                            Id = "de454825-5ab5-429b-b573-f39342ee72c1",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "adcsdcsdc25d1fv5fd",
+                            DateOfBirth = new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "andrew@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Andrew Crawley",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ANDREW@EXAMPLE.COM",
+                            NormalizedUserName = "ANDREW@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bhdbcvhdbchdbhjkbs15c1sdf51",
+                            TwoFactorEnabled = false,
+                            UserName = "andrew@example.com"
+                        },
+                        new
+                        {
+                            Id = "833420e4-2b6c-4db4-9a5e-14b52f38133d",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "adcsdcsdc25d1fv5fd",
+                            DateOfBirth = new DateTime(1995, 2, 1, 18, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "mirsabbiralam@gmail.com",
+                            EmailConfirmed = true,
+                            FullName = "Mir Sabbir",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "MIRSABBIRALAM@GMAIL.COM",
+                            NormalizedUserName = "MIRSABBIRALAM@GMAIL.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAELr4vn3sYT19MRAC6PLUCFsUlE3dwda1bvoZkZ5V77adz4c6yC/aP474PPeHx6UXnw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bhdbcvhdbchdbhjkbs15c1sdf51",
+                            TwoFactorEnabled = false,
+                            UserName = "mirsabbiralam@gmail.com"
                         });
                 });
 
@@ -284,7 +338,22 @@ namespace Authorization.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "1f8211b7-f591-4453-92a9-a8bcc0122903",
+                            UserId = "2e17f50a-9541-4731-951f-a6755db80eeb",
+                            RoleId = "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b"
+                        },
+                        new
+                        {
+                            UserId = "3e3c9543-d97c-4332-b177-850073f90d01",
+                            RoleId = "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b"
+                        },
+                        new
+                        {
+                            UserId = "de454825-5ab5-429b-b573-f39342ee72c1",
+                            RoleId = "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b"
+                        },
+                        new
+                        {
+                            UserId = "833420e4-2b6c-4db4-9a5e-14b52f38133d",
                             RoleId = "8c17cdd1-aaaa-4ffc-9931-619bb6760b8b"
                         });
                 });

@@ -19,8 +19,8 @@ namespace CourseManagement.Application.Interfaces
         Task<CourseDTO> CreateCourseAsync(CreateCourseDTO createCourseDTO);
         Task<CourseDTO> UpdateCourseAsync(UpdateCourseDTO updateCourseDTO);
         Task DeleteCourseAsync(Guid id);
-        Task<IEnumerable<ClassDTO>> GetClassesAsync(Guid id);
-        Task<IEnumerable<StudentDTO>> GetStudentsAsync(Guid id);
+        Task<IEnumerable<AssignedClassDTO>> GetClassesAsync(Guid id);
+        Task<IEnumerable<AssignedStudentDTO>> GetStudentsAsync(Guid id);
         Task EnrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
         Task UnenrollStudentAsync(CourseEnrollmentDTO courseEnrollmentDTO);
         Task<IEnumerable<Course>> SearchCoursesAsync(string query);

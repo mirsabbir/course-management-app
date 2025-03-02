@@ -363,13 +363,37 @@ namespace CourseManagement.UnitTests.ApplicationTests
                 new Class {Id = Guid.NewGuid(), Name = "Class 2", CreatedById = Guid.NewGuid(), CreatedByName = "Jane Smith", Description = string.Empty}
             };
 
+            var classCourses = new List<ClassCourse>
+            {
+                new ClassCourse
+                {
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedByName = string.Empty,
+                    AssignedById = Guid.NewGuid(),
+                    ClassId = classes[0].Id,
+                    Class = classes[0],
+                    Course = course,
+                    CourseId = course.Id,
+                },
+                new ClassCourse
+                {
+                    AssignedAt = DateTime.UtcNow,
+                    AssignedByName = string.Empty,
+                    AssignedById = Guid.NewGuid(),
+                    ClassId = classes[1].Id,
+                    Class = classes[1],
+                    Course = course,
+                    CourseId = course.Id,
+                }
+            };
+
             _mockCourseRepository
                 .Setup(repo => repo.GetByIdAsync(courseId))
                 .ReturnsAsync(course);
 
             _mockClassRepository
                 .Setup(repo => repo.GetByCourseIdAsync(courseId))
-                .ReturnsAsync(classes);
+                .ReturnsAsync(classCourses);
 
             // Act
             var result = await _courseService.GetClassesAsync(courseId);
@@ -399,13 +423,34 @@ namespace CourseManagement.UnitTests.ApplicationTests
                     new Student { Id = Guid.NewGuid(), FullName = "Jane Smith", Email = "jane@example.com", DateOfBirth = new DateTime(1999, 5, 15), CreatedByName = string.Empty }
                 };
 
+            var courseStudents = new List<CourseStudent> {
+            new CourseStudent
+                {
+                    AssignedByName = "Assigned by",
+                    AssignedAt = DateTime.UtcNow,
+                    Student = students[0],
+                    AssignedById = Guid.NewGuid(),
+                    CourseId = course.Id,
+                    StudentId = students[0].Id,
+                },
+            new CourseStudent
+                {
+                    AssignedByName = "Assigned by",
+                    AssignedAt = DateTime.UtcNow,
+                    Student = students[1],
+                    AssignedById = Guid.NewGuid(),
+                    CourseId = course.Id,
+                    StudentId = students[1].Id,
+                },
+            };
+
             _mockCourseRepository
                 .Setup(repo => repo.GetByIdAsync(courseId))
                 .ReturnsAsync(course);
 
             _mockCourseStudentRepository
                .Setup(repo => repo.GetStudentsByCourseIdAsync(courseId))
-               .ReturnsAsync(students);
+               .ReturnsAsync(courseStudents);
 
             // Act
             var result = await _courseService.GetStudentsAsync(courseId);

@@ -72,7 +72,7 @@ namespace CourseManagement.API.Controllers
             return Ok();
         }
 
-        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff, RoleConstants.Student], scopes: ["course.manage"])]
         [HttpGet("{courseId}/classes")]
         public async Task<IActionResult> GetClassesByCourseId(Guid courseId)
         {

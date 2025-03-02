@@ -12,7 +12,8 @@ namespace CourseManagement.Application.Interfaces
         Task<bool> ExistsAsync(Guid classId, Guid studentId);
         Task AddAsync(ClassStudent classStudent);
         Task RemoveAsync(Guid classId, Guid studentId);
-        Task<IEnumerable<Student>> GetStudentsByClassIdAsync(Guid classId);
-        Task<IEnumerable<Class>> GetClasssesByStudentIdAsync(Guid studentId);
+        Task<IEnumerable<ClassStudent>> GetStudentsByClassIdAsync(Guid classId);
+        Task<IEnumerable<ClassStudent>> GetClasssesByStudentIdAsync(Guid studentId);
+        Task<IEnumerable<Student>> GetStudentsDirectlyOrIndirectlyAssignedToClassAsync(Guid classId, Guid studentId);
     }
 }

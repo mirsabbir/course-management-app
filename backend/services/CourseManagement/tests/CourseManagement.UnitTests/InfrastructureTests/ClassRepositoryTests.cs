@@ -168,7 +168,7 @@ namespace CourseManagement.UnitTests.InfrastructureTests
 
                 // Assert
                 Assert.Single(result);
-                Assert.Equal(testClass1.Name, result.First().Name);
+                Assert.Equal(testClass1.Name, result.First().Class.Name);
             }
         }
     }

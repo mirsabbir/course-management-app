@@ -39,7 +39,7 @@ function Students() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [pageNumber, setPageNumber] = useState(1); // Current page number
-  const [pageSize, setPageSize] = useState(5); // Number of items per page
+  const [pageSize, setPageSize] = useState(7); // Number of items per page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
   const [totalCount, setTotalCount] = useState(0); // Total number of items
 
