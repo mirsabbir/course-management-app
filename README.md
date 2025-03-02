@@ -24,7 +24,7 @@ This project is a web-based Course Management System for a university. It allows
 ## Architecture
 ### Components & Their Responsibilities
 #### Authorization Server (Web API - .NET 9)
-- Developed an OAuth server using Duende Identity Server and ASP.NET Identity for authentication.
+- Developed an OAuth 2.0 server using Duende Identity Server and ASP.NET Identity for authentication.
 - Followed Clean Architecture, organizing the solution into four projects: API, Domain, Infrastructure, and Application.
 - Utilized RSA keys for signing JWTs, securely stored in the `.env` file.
 - The User entity supports create, update, and delete operations with an invitation flow (valid for 1 day).
