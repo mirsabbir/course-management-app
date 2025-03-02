@@ -21,3 +21,5 @@ This project is a web-based Course Management System for a university. It allows
 9. [Submission Instructions](#submission-instructions)
 10. [License](#license)
 
+
+![microservice](https://github.com/user-attachments/assets/0c523b63-ac0f-48d1-a82f-24c914492b7b)
