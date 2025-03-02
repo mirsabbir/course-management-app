@@ -90,6 +90,7 @@ namespace CourseManagement.API.Controllers
             return Ok(students);
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpPost("{courseId}/students")]
         public async Task<IActionResult> EnrollToCourse(Guid courseId, [FromBody] CourseEnrollmentDTO courseEnrollmentDTO)
         {
@@ -102,6 +103,7 @@ namespace CourseManagement.API.Controllers
             return Ok();
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpDelete("{courseId}/students/{studentId}")]
         public async Task<IActionResult> UnenrollFromCourse(Guid courseId, Guid studentId)
         {
@@ -115,6 +117,7 @@ namespace CourseManagement.API.Controllers
             return Ok();
         }
 
+        [AuthorizeRolesAndScopes(roles: [RoleConstants.Staff], scopes: ["course.manage"])]
         [HttpGet("search")]
         public async Task<IActionResult> SearchCourses([FromQuery] string query)
         {
