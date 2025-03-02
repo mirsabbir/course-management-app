@@ -24,7 +24,7 @@ This project is a web-based Course Management System for a university. It allows
 ## Architecture
 ### Components & Their Responsibilities
 #### Frontend (React UI)
-Technologies: React, Axios (for HTTP requests), Redux (optional, for state management), React Router (for routing).
+Technologies: React, Axios (for HTTP requests), React Router (for routing).
 Responsibilities:
 Provide an intuitive interface for students and staff.
 Allow staff to manage courses, classes, students, and enrollments.
@@ -38,6 +38,12 @@ Secure endpoints using JWT Authentication.
 Communicate with the PostgreSQL database to store and retrieve data.
 Implement business logic for operations like enrolling a student in a course (which automatically enrolls them in all related classes).
 Log structured events to provide traceability for API operations.
+#### Authorization Server
+Technologies: PostgreSQL for storing data in relational tables.
+Responsibilities:
+Store data related to courses, classes, students, and enrollments.
+Support the relationships between tables, such as many-to-many between courses and students, and one-to-many between courses and classes.
+Provide referential integrity and ensure data consistency.
 #### Database (PostgreSQL)
 Technologies: PostgreSQL for storing data in relational tables.
 Responsibilities:
