@@ -133,7 +133,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
    git clone https://github.com/mirsabbir/course-management-app.git
    cd course-management-app/docker
    ```
-2. Download the `.env` file from email and paste it to this location.
+2. Download the `.env` file from email and paste it to this location. (make sure after downloading it from email the file name remains exactly `.env`. in some cases it changes to `env`)
 3. Run the application using Docker Compose:
    ```sh
    docker-compose up --build
