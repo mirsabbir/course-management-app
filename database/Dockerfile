@@ -2,9 +2,9 @@
 FROM postgres:latest
 
 # Set environment variables for the database
-ENV POSTGRES_USER=your_username
-ENV POSTGRES_PASSWORD=your_password
-ENV POSTGRES_DB=your_database
+ENV POSTGRES_USER=dbuser
+ENV POSTGRES_PASSWORD=dbpass
+ENV POSTGRES_DB=mydb
 
 # Copy migration SQL files into the correct directory for execution at runtime
 COPY init.sql authorization-migration.sql course-management-api-migration.sql /docker-entrypoint-initdb.d/
