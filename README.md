@@ -22,4 +22,26 @@ This project is a web-based Course Management System for a university. It allows
 10. [License](#license)
 
 ## Architecture
+### Components & Their Responsibilities
+#### Frontend (React UI)
+Technologies: React, Axios (for HTTP requests), Redux (optional, for state management), React Router (for routing).
+Responsibilities:
+Provide an intuitive interface for students and staff.
+Allow staff to manage courses, classes, students, and enrollments.
+Allow students to view their enrolled courses and classes and see other students in their classes.
+Protect routes and functionality with JWT-based authentication (i.e., show "Login" button if not authenticated and "Welcome {name}, Logout" if authenticated).
+#### Backend (Web API - .NET 9)
+Technologies: .NET 9, Entity Framework (ORM), ASP.NET Core Web API, JWT Authentication, Structured Logging (using Serilog).
+Responsibilities:
+Handle API requests (CRUD operations for courses, classes, students, and enrollments).
+Secure endpoints using JWT Authentication.
+Communicate with the PostgreSQL database to store and retrieve data.
+Implement business logic for operations like enrolling a student in a course (which automatically enrolls them in all related classes).
+Log structured events to provide traceability for API operations.
+#### Database (PostgreSQL)
+Technologies: PostgreSQL for storing data in relational tables.
+Responsibilities:
+Store data related to courses, classes, students, and enrollments.
+Support the relationships between tables, such as many-to-many between courses and students, and one-to-many between courses and classes.
+Provide referential integrity and ensure data consistency.
 ![microservice](https://github.com/user-attachments/assets/0c523b63-ac0f-48d1-a82f-24c914492b7b)
