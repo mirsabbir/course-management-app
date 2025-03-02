@@ -200,7 +200,7 @@ function Courses() {
   return (
     <Container style={{ marginTop: "20px" }}>
       <Typography variant="h4" gutterBottom textAlign="center">
-        {userRole === "Student" ? "See Courses" : "Manage Courses"}
+        {userRole === "Student" ? "View Courses" : "Manage Courses"}
       </Typography>
       {userRole === "Staff" && (
         <Button
