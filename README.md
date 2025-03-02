@@ -23,22 +23,6 @@ This project is a web-based Course Management System for a university. It allows
 
 ## Architecture
 ### Components & Their Responsibilities
-#### Frontend (React UI)
-Technologies: React, Axios (for HTTP requests), React Router (for routing).
-Responsibilities:
-Provide an intuitive interface for students and staff.
-Allow staff to manage courses, classes, students, and enrollments.
-Allow students to view their enrolled courses and classes and see other students in their classes.
-Protect routes and functionality with JWT-based authentication (i.e., show "Login" button if not authenticated and "Welcome {name}, Logout" if authenticated).
-#### Backend (Web API - .NET 9)
-- Built with .NET 9, adhering to Clean Architecture with four distinct projects: API, Domain, Infrastructure, and Application.
-- Fluent Validation is used for input validation across the system.
-- Error handling is managed through exception handling middleware, providing structured error responses.
-- Supports pagination for API endpoints.
-- A custom attribute is implemented to enforce authentication and authorization checks (scopes and roles).
-- Unit and integration tests are written for robust testing.
-- Logs are structured using Serilog for clear and consistent monitoring.
-- Open API Swagger is utilized for API documentation.
 #### Authorization Server (Web API - .NET 9)
 - Developed an OAuth server using Duende Identity Server and ASP.NET Identity for authentication.
 - Followed Clean Architecture, organizing the solution into four projects: API, Domain, Infrastructure, and Application.
@@ -50,10 +34,23 @@ Protect routes and functionality with JWT-based authentication (i.e., show "Logi
 - Comprehensive unit and integration tests are in place.
 - Implemented structured logging with Serilog for better observability.
 - Open API Swagger is used for API documentation.
+#### Backend (Web API - .NET 9)
+- Built with .NET 9, adhering to Clean Architecture with four distinct projects: API, Domain, Infrastructure, and Application.
+- Fluent Validation is used for input validation across the system.
+- Error handling is managed through exception handling middleware, providing structured error responses.
+- Supports pagination for API endpoints.
+- A custom attribute is implemented to enforce authentication and authorization checks (scopes and roles).
+- Unit and integration tests are written for robust testing.
+- Logs are structured using Serilog for clear and consistent monitoring.
+- Open API Swagger is utilized for API documentation.
+#### Frontend (React UI)
+- Built with React, using Axios for HTTP requests and React Router for navigation.
+- Implemented Authorization Code Flow to get access token from authorization server.
+- Provides an intuitive interface for students and staff.
+- Staff can manage courses, classes, students, and enrollments.
+- Students can view enrolled courses, classes, and classmates.
 #### Database (PostgreSQL)
-Technologies: PostgreSQL for storing data in relational tables.
-Responsibilities:
-Store data related to courses, classes, students, and enrollments.
-Support the relationships between tables, such as many-to-many between courses and students, and one-to-many between courses and classes.
-Provide referential integrity and ensure data consistency.
+- Uses PostgreSQL for relational data storage.
+- Separate schemas are used for different services.
+- Stores data for courses, classes, students, and enrollments.
 ![microservice](https://github.com/user-attachments/assets/0c523b63-ac0f-48d1-a82f-24c914492b7b)
