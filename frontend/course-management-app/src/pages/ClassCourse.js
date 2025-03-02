@@ -182,8 +182,8 @@ function ClassCourse() {
                 <TableRow>
                   <TableCell><strong>Name</strong></TableCell>
                   <TableCell><strong>Description</strong></TableCell>
-                  <TableCell><strong>Assigned At</strong></TableCell>
-                  <TableCell><strong>Assigned By</strong></TableCell>
+                  <TableCell><strong>Added At</strong></TableCell>
+                  <TableCell><strong>Added By</strong></TableCell>
                   <TableCell><strong>Actions</strong></TableCell>
                 </TableRow>
               </TableHead>
