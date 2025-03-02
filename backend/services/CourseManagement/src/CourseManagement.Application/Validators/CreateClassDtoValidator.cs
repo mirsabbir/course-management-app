@@ -14,7 +14,8 @@ namespace CourseManagement.Application.Validators
         {
             RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name is required.")
-            .MaximumLength(50).WithMessage("Name cannot exceed 50 characters.");
+            .MaximumLength(50).WithMessage("Name cannot exceed 50 characters.")
+            .Matches("^[a-zA-Z0-9]*$").WithMessage("Name must be alphanumeric.");
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description is required.")
