@@ -31,8 +31,6 @@ Allow staff to manage courses, classes, students, and enrollments.
 Allow students to view their enrolled courses and classes and see other students in their classes.
 Protect routes and functionality with JWT-based authentication (i.e., show "Login" button if not authenticated and "Welcome {name}, Logout" if authenticated).
 #### Backend (Web API - .NET 9)
-Technologies: .NET 9, Entity Framework (ORM), ASP.NET Core Web API, JWT Authentication, Structured Logging (using Serilog).
-Design:
 - Built with .NET 9, adhering to Clean Architecture with four distinct projects: API, Domain, Infrastructure, and Application.
 - Fluent Validation is used for input validation across the system.
 - Error handling is managed through exception handling middleware, providing structured error responses.
@@ -42,8 +40,6 @@ Design:
 - Logs are structured using Serilog for clear and consistent monitoring.
 - Open API Swagger is utilized for API documentation.
 #### Authorization Server (Web API - .NET 9)
-Technologies: PostgreSQL for storing data in relational tables.
-Design:
 - Developed an OAuth server using Duende Identity Server and ASP.NET Identity for authentication.
 - Followed Clean Architecture, organizing the solution into four projects: API, Domain, Infrastructure, and Application.
 - Utilized RSA keys for signing JWTs, securely stored in the `.env` file.
