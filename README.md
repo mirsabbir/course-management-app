@@ -53,4 +53,5 @@ This project is a web-based Course Management System for a university. It allows
 - Uses PostgreSQL for relational data storage.
 - Separate schemas are used for different services.
 - Stores data for courses, classes, students, and enrollments.
+- Database is not exposed to outside world
 ![microservice](https://github.com/user-attachments/assets/0c523b63-ac0f-48d1-a82f-24c914492b7b)
