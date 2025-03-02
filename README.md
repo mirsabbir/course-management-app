@@ -32,18 +32,28 @@ Allow students to view their enrolled courses and classes and see other students
 Protect routes and functionality with JWT-based authentication (i.e., show "Login" button if not authenticated and "Welcome {name}, Logout" if authenticated).
 #### Backend (Web API - .NET 9)
 Technologies: .NET 9, Entity Framework (ORM), ASP.NET Core Web API, JWT Authentication, Structured Logging (using Serilog).
-Responsibilities:
-Handle API requests (CRUD operations for courses, classes, students, and enrollments).
-Secure endpoints using JWT Authentication.
-Communicate with the PostgreSQL database to store and retrieve data.
-Implement business logic for operations like enrolling a student in a course (which automatically enrolls them in all related classes).
-Log structured events to provide traceability for API operations.
-#### Authorization Server
+Design:
+- Built with .NET 9, adhering to Clean Architecture with four distinct projects: API, Domain, Infrastructure, and Application.
+- Fluent Validation is used for input validation across the system.
+- Error handling is managed through exception handling middleware, providing structured error responses.
+- Supports pagination for API endpoints.
+- A custom attribute is implemented to enforce authentication and authorization checks (scopes and roles).
+- Unit and integration tests are written for robust testing.
+- Logs are structured using Serilog for clear and consistent monitoring.
+- Open API Swagger is utilized for API documentation.
+#### Authorization Server (Web API - .NET 9)
 Technologies: PostgreSQL for storing data in relational tables.
-Responsibilities:
-Store data related to courses, classes, students, and enrollments.
-Support the relationships between tables, such as many-to-many between courses and students, and one-to-many between courses and classes.
-Provide referential integrity and ensure data consistency.
+Design:
+- Developed an OAuth server using Duende Identity Server and ASP.NET Identity for authentication.
+- Followed Clean Architecture, organizing the solution into four projects: API, Domain, Infrastructure, and Application.
+- Utilized RSA keys for signing JWTs, securely stored in the `.env` file.
+- The User entity supports create, update, and delete operations with an invitation flow (valid for 1 day).
+- APIs are protected with scope validation and role-based access control.
+- Input validation is handled using Fluent Validation.
+- Exception handling middleware ensures accurate status codes and error messages.
+- Comprehensive unit and integration tests are in place.
+- Implemented structured logging with Serilog for better observability.
+- Open API Swagger is used for API documentation.
 #### Database (PostgreSQL)
 Technologies: PostgreSQL for storing data in relational tables.
 Responsibilities:
