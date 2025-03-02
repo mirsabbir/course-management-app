@@ -15,9 +15,10 @@ This project is a web-based Course Management System for a university. It allows
 3. [Installation and Usage](#installation-and-usage)
    - 3.1 [Prerequisites](#prerequisites)
    - 3.2 [Setup](#setup)
-7. [Database Schema](#database-schema)
-8. [Testing](#testing)
-9. [Submission Instructions](#submission-instructions)
+4. [Database Schema](#database-schema)
+   - 4.1 [Course Management Service Schema](#course-management-service-schema)
+   - 4.2 [Authorization Service Schema](#authorization-service-schema)
+6. [Requirement fulfillment](#requirement-fulfillment)
 
 ## Architecture
 ### Components & Their Responsibilities
@@ -137,9 +138,11 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 4. The API should now be accessible at `http://localhost:3000`
 
 ## Database Schema
-### Course Management Service Schema
+### Course Management Service Schema 
 ![Untitled](https://github.com/user-attachments/assets/a1caf7e4-c57f-4d70-8f86-1a73f4d32362)
-
+[High Resolution ERD project](https://github.com/mirsabbir/course-management-app/blob/main/docs/course-management-erd.pgerd)
 ### Authorization Service Schema
 ![authorization-erd pgerd](https://github.com/user-attachments/assets/ab70e47d-9b14-4100-a169-c5c1a46d7bc1)
+[High Resolution ERD project](https://github.com/mirsabbir/course-management-app/blob/main/docs/authorization-erd.pgerd)
 
+## Requirement fulfillment
