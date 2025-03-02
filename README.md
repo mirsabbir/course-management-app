@@ -64,8 +64,8 @@ Fig: Microservice Overview ([Draw.io](https://github.com/mirsabbir/course-manage
 ![authorization](https://github.com/user-attachments/assets/bcb1f345-b2bf-4b7a-9436-6d0cab2c6b06)
 Fig: Authorization Code Flow ([Draw.io](https://github.com/mirsabbir/course-management-app/blob/main/docs/microservice.drawio))
 
-## API Documentation
-
+## API Documentation 
+Here is the short API documentation for Course Management API project
 ### Base URL
 ```
 http://localhost:5181/
