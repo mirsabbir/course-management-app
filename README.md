@@ -136,6 +136,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
    docker-compose up --build
    ```
 4. The API should now be accessible at `http://localhost:3000`
+5. Use the provided credentials through email to login as Staff user which is seeded.
 
 ## Database Schema
 ### Course Management Service Schema 
